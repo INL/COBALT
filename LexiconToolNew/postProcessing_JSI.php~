@@ -1,0 +1,78 @@
+<?php
+
+require_once('./php/lexiconToolBox.php');
+
+$GLOBALS['iUserid'] = 15; // Denk ik...
+
+$sDatabase = 'lexiconTool_testDb';
+
+// Rest van de settings komt uit globals.php
+chooseDb($sDatabase);
+
+// v'borsteh, etc.
+splitWords("'");
+
+// 180º, etc.
+splitWords("º");
+
+// Functions ///////////////////////////////////////////////////////////////////
+
+function splitWords($cSplitChar) {
+  $oResult = getWordsToSplit($cSplitChar);
+
+  while( ($aRow = mysql_fetch_assoc($oResult)) ) {
+    $aNewWordforms = preg_split("/$cSplitChar/", $aRow['wordform']);
+    $aNewPosses = preg_split("/ & /", $aRow['analysis']);
+    if( (count($aNewWordforms) == 2) &&
+	(count($aNewPosses) == 2) ) {
+      // Change the word forms. This does exactly the same as when a user would
+      // have done it in the tool.
+
+      // HIER GEBLEVEN. Misschien moet changewordforms wat teruggeven..?!?
+      changeWordForm($GLOBALS['iUserId'], $aRow['wordform_id'],
+		     $aRow['wordform'],
+		     $aNewWordforms[0] . "|" . $aNewWordforms[1],
+		     $hrRow['tokenAtts']);
+      // So now the words are split, but without analysis.
+      // As a quick fix, because we can assume that every other word does have
+      // an analysis, we can simply update all 
+    }
+    else {
+      print "ERROR: problem with '" . $aRow['wordform'] .
+	"', part of speeches do not correspond '" . $aRow['analyses'] .
+	". Skipping...\n";
+    }
+  }
+}
+
+mysql_free_result($oResult);
+
+}
+
+function getWordsToSplit($cSplitChar) {
+  $oResult;
+
+  // Actually in the "'" case we are looking for words that start with a single
+  // character followed by an '.
+  $sSplitPattern = ($cSplitChar == "'") ? "'_''%'" : "'$cSplitChar'";
+
+  $sSelectQuery =
+    "SELECT wordform, document_id, start_pos, end_pos, analysis" .
+    "  FROM wordforms, analyzed_wordforms, token_attestations" .
+    " WHERE analyzed_wordforms.wordform_id = wordforms.wordform_id" .
+    "   AND analyzed_wordforms.analyzed_wordform_id =" .
+    "         token_attestations.analyzed_wordform_id" .
+    // Only multiple ones
+    "   AND analyzed_wordforms.multiple_lemmata_analysis_id > 0"
+    "   AND (wordform LIKE $sSplitPattern)";
+
+  if( ($oResult = doSelectQuery($sSelectQuery)) ) {
+    return $oResult;
+  }
+  else {
+    print "ERROR: no results.\n";
+    exit(1);
+  }
+}
+
+?>

@@ -1,0 +1,456 @@
+body {
+ font: 12px Verdana, Arial, Helvetica, sans-serif;
+ color: #2A2A2A;
+}
+
+a, td {
+ font: 12px Verdana, Arial, Helvetica, sans-serif;
+ color: #2A2A2A;
+}
+
+td {
+ vertical-align: top;
+}
+
+.link {
+ text-decoration: underline;
+}
+
+#editLemmaDiv {
+ display: none;
+}
+
+.editLemmaHeader {
+ background: #EAEAEA;
+ text-align: center;
+ font-weight: bold;
+ padding: 2px 10px 2px 10px;
+}
+
+.editLemmaSubmits {
+ vertical-align: bottom;
+}
+
+.lemmaDeleted {
+ background: #F49EA6;
+ padding: 6px 0px 6px 6px;
+}
+
+#pageLinks {
+ width: 100%;
+ height: 24px;
+}
+
+.nextToPageLinks {
+ width: 500px;
+}
+
+#sentenceLinks {
+ width: 100%;
+ height: 18px;
+}
+
+#scrollerCol {
+ height: 18px;
+ width: 500px;
+}
+
+#scroller {
+ width: 500px;
+ height: 18px;
+ text-align: center;
+ overflow-x: hidden;
+}
+
+#sentenceScrollerCol {
+ height: 18px;
+ width: 500px;
+}
+
+#sentenceScroller {
+ width: 500px;
+ height: 18px;
+ text-align: center;
+ overflow-x: hidden;
+}
+
+.somePage {
+ text-decoration: underline;
+}
+
+.thisPage {
+ background: #F1CD6C;
+ text-decoration: underline;
+}
+
+#progressBar {
+ position: absolute;
+ top: 20px;
+ left: 20px;
+ width: 120px;
+
+ visibility: hidden;
+ padding: 10px;
+ border: 4px solid #DEDEDE;
+ background: #FFF;
+} 
+
+.corpusRow {
+ margin: 4px 0px 4px 0px;
+}
+
+.showCorpusFiles {
+ background: url('../img/folderClosed.png') no-repeat top left;
+ padding: 2px;
+ margin: 0px 0px 4px 0px;
+}
+
+.showCorpusFiles_ {
+ background: url('../img/folderOpen.png') no-repeat top left;
+ padding: 2px;
+ margin: 0px 0px 4px 0px;
+}
+
+.corpusFile {
+ margin: 0px 0px 0px 10px;
+}
+
+.textButton {
+ border: 1px solid #808080;
+ background: #C8C8C8;
+ font: 12px Verdana, Arial, Helvetica, sans-serif;
+ color: #2A2A2A;
+ padding: 2px;
+}
+
+#sortBox {
+ margin: 0px 0px 4px 0px;
+}
+
+.sortSpan {
+ background: #EFEFEF;
+}
+
+.sortArrow {
+ width: 13px;
+ padding: 0px 2px 0px 2px;
+}
+
+.sortArrow_ {
+ width: 13px;
+ padding: 0px 2px 0px 2px;
+ background: #F3E293;
+}
+
+.clickableTokenAtt {
+}
+
+.clickableTokenAtt_ {
+ background: #FAF3D2;
+}
+
+.lastViewed_ {
+ background: #F49EA6;
+ padding: 2px;
+}
+
+.document {
+ margin: 3px 0px 0px 0px;
+}
+
+.docTitle {
+ background: #EAEAEA;
+}
+
+.leftCorner {
+ width: 10px;
+ background: #EAEAEA url('../img/leftCorner.gif') no-repeat left top;
+}
+
+.docTitleCol {
+ text-align: left;
+ color: #4A4A4A;
+ padding: 2px 2px 2px 4px;
+ font: 9px Verdana, Arial, Helvetica, sans-serif;
+}
+
+.docTitleCol_ {
+ text-align: left;
+ color: #4A4A4A;
+ padding: 2px 2px 2px 4px;
+ font: 9px Verdana, Arial, Helvetica, sans-serif;
+ text-decoration: underline;
+}
+
+.rightCorner {
+ background: #EAEAEA url('../img/rightCorner.gif') no-repeat right top;
+}
+
+.sentence {
+ background: #F6F6F6;
+}
+
+.sentence_ {
+ background: #FFF;
+}
+
+.sentence- {
+ background: #F3E293 url('../img/whitePixel.gif') bottom repeat-x;
+}
+
+.sentence_- {
+ background: #F3E293 url('../img/whitePixel.gif') bottom repeat-x;
+}
+
+a.moreContext {
+ color: #888;
+ text-decoration: none;
+}
+
+#wordsToAttest {
+ height: 32%;
+ overflow-y: auto;
+ margin: 0px 0px 0px 0px;
+}
+
+.checked {
+ width: 15px;
+ height: 15px;
+}
+
+.unchecked {
+ width: 15px;
+ height: 15px;
+}
+
+.grayChecked {
+ width: 15px;
+ height: 15px;
+}
+
+.undefinedCheckbox {
+ width: 15px;
+ height: 15px;
+}
+
+#leftSort {
+ text-align: left;
+}
+
+#rightSort {
+ text-align: right;
+}
+
+#heldDownKeyNotifier {
+ visibility: hidden;
+ background: #F3E293;
+ text-align: center;
+}
+
+#sortingButtons {
+ visibility: hidden;
+}
+
+#sentences {
+ height: 54%;
+ text-align: center;
+ margin: 0px 0px 0px 0px;
+ overflow-y: auto;
+}
+
+.currentTokenAtts {
+ width: 180px;
+}
+
+.contextWord {
+}
+
+.contextWord_ {
+ background: #F1CD6C;
+}
+
+.matchedLeftPart {
+ text-align: right;
+ padding: 2px;
+ width: 44%;
+}
+
+.matchedPart {
+ height: 18px;
+ padding: 2px;
+ text-align: center;
+ background: #F1CD6C;
+}
+
+.matchedRightPart {
+ text-align: left;
+ padding: 2px;
+ width: 44%;
+}
+
+.wordRow_0 {
+ background: #F6F6F6;
+}
+
+.wordRow_1 {
+ background: #FFF;
+}
+
+.wordRow_selected {
+ background: #F1CD6C;
+}
+
+.wordRow_hidden_0 {
+ background: #F7DFD7;
+}
+
+.wordRow_hidden_1 {
+ background: #FFEFEA;
+}
+
+.dontShowCol {
+}
+
+.dontShowButton {
+ width: 18px; 
+ font: 8px Verdana, Arial, Helvetica, sans-serif;
+ padding: 0px 1px 0px 1px;
+ background: url('../img/dontShow.png') no-repeat center right;
+ color: #C4C4C4;
+}
+
+.dontShowButton_ {
+ width: 18px; 
+ font: 8px Verdana, Arial, Helvetica, sans-serif;
+ padding: 0px 1px 0px 1px;
+ background: url('../img/doShow.png') no-repeat center right #F3E293;
+ color: #000000;
+}
+
+.dontShow {
+ width: 18px; 
+ font: 8px Verdana, Arial, Helvetica, sans-serif;
+ padding: 0px 1px 0px 1px;
+ background: url('../img/dontShow.png') no-repeat center right;
+ color: #C4C4C4;
+}
+
+.dontShow_ {
+ width: 18px; 
+ font: 8px Verdana, Arial, Helvetica, sans-serif;
+ padding: 0px 1px 0px 1px;
+ background: url('../img/doShow.png') no-repeat center right;
+ color: #000000;
+}
+
+.wordCol {
+ width: 1%;
+ padding: 0px 0px 0px 4px;
+}
+
+.freqCol {
+ width: 1%;
+ padding: 0px 0px 4px 4px;
+}
+
+.tokenAttsInCorpus {
+ width: 38%;
+ padding: 0px 0px 4px 10px;
+}
+
+.tokenAttsInDb {
+ width: 50%;
+ padding: 0px 0px 4px 10px;
+}
+
+#posEditor {
+ margin: 0px 0px 0px 0px;
+}
+
+#textAttSuggestions {
+ position: absolute;
+ visibility: hidden;
+
+ background: #FFFFFF;
+ border: #E6E6E6 solid 1px;
+ padding: 4px 4px 4px 4px;
+}
+
+#tokenAttSuggestions {
+ position: absolute;
+ visibility: hidden;
+
+ background: #FFFFFF;
+ border: #E6E6E6 solid 1px;
+ padding: 4px 4px 4px 4px;
+}
+
+.lemmaSuggestion {
+}
+
+.lemmaSuggestion_isAtt {
+ background: #F1CD6C;
+}
+
+.lemmaSuggestion_ {
+ color: #FFFFFF;
+ background: #800000;
+}
+
+.lemmaSuggestion_isAtt_ {
+ color: #FFFFFF;
+ background: #d49b00;
+}
+
+.chooseBox {
+ padding: 10px;
+}
+
+.chooseCol {
+ width: 150px;
+}
+
+.moreContextDoc {
+ background: #FFF;
+ border: 1px solid #BBB;
+ padding: 20px 20px 10px 20px;
+}
+
+.sortByContextButton {
+ border: 1px solid #FFFFFF;
+ padding: 0px 1px 0px 1px;
+}
+
+.sortByContextButton_ {
+ border: 1px solid #DEDEDE;
+ padding: 0px 1px 0px 1px;
+ background: #F3E293;
+}
+
+#imageDisplay {
+ position: absolute;
+ left: 40px;
+ top: 40px;
+ text-align:left;
+ margin: 0px 40px 20px 0px;
+ border: 1px solid #E8E8E8;
+}
+
+.wordBox {
+ background: #F1CD6C;
+ filter: alpha(opacity=30);
+ opacity: 0.30;
+ z-index: 100;
+ border: 1px solid #FF7800;
+}
+
+.wordBox_invisible {
+}
+
+#wordBoxBorder {
+ z-index: 101;
+}
+
+#closeDisplayImage {
+ margin: 10px 20px 0px 0px;
+}

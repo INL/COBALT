@@ -1,0 +1,93 @@
+<?php
+
+// Strip the tags from a string.
+// Keep track of (single/double) quoted parts.
+//
+// "ab<cd>ef" will result in "abef"
+// "ab<cdef" will be "ab<cdef" (i.e. unbalanced tags/quotes, are neglected)
+//
+// The last tag opening bracket is taken to be the real opening bracket.
+// So "ab<c<de>f" will result in "ab<cf"
+//
+// The stripped string is returned together with an array of arrays, which
+// are pairs of onset/offsets of skipped parts in th original string.
+
+// The fucntion goes through the string character by character and implements
+// a very simple state parser.
+// On encountering a certain token some boolean is set indicating a certain
+// state.
+
+function stripTags($sStr) {
+  $aSkipped = array();
+  $iSkipOnset;
+  $sStripped = '';
+  $sTagText = '';
+  $bInTag = $bInDoubleQuote = $bInSingleQuote = FALSE;
+  for($i = 0; $i < strlen($sStr); $i++ ) {
+    if( $sStr{$i} == '<') {
+      if (! $bInTag) {
+	$bInTag = TRUE;
+	$iSkipOnset = $i;
+      }
+      else // If we thought we were already in a tag, then actually the tag
+	// should start here...
+	if( ! $bInSingleQuote && ! $bInDoubleQuote) {
+	  $sStripped .= $sTagText;
+	  $sTagText = '';
+	  $iSkipOnset = $i;
+	}
+      $sTagText .= $sStr{$i};
+    }
+    else
+      if( $sStr{$i} == '>') {
+	if($bInTag) {
+	  if(! ($bInSingleQuote || $bInDoubleQuote) ) {
+	    $bInTag = FALSE;
+	    $sTagText = '';
+	    array_push($aSkipped, array($iSkipOnset, $i));
+	  }
+	  else // We are in a quoted part
+	    $sTagText .= $sStr{$i};
+	}
+	else // It is just a '>' in the text
+	  $sStripped .= $sStr{$i};
+      }
+      else 
+	if($sStr{$i} == '"')
+	  if($bInTag) {
+	    if( ! $bInSingleQuote)
+	      if( $bInDoubleQuote )
+		$bInDoubleQuote = FALSE;
+	      else
+		$bInDoubleQuote = TRUE;
+	    $sTagText .= $sStr{$i};
+	  }
+	  else // Not in tag
+	    $sStripped .= $sStr{$i};
+	else
+	  if( $sStr{$i} == "'")
+	    if($bInTag) {
+	      if( ! $bInDoubleQuote)
+		if( $bInSingleQuote )
+		  $bInSingleQuote = FALSE;
+		else
+		  $bInSingleQuote = TRUE;
+	      $sTagText .= $sStr{$i};
+	    }
+	    else // Not in tag
+	      $sStripped .= $sStr{$i};
+	  else // It is none of the options above
+	    if( $bInTag )
+	      $sTagText .= $sStr{$i};
+	    else
+	      $sStripped .= $sStr{$i};
+  } // End of for loop
+
+  // If a tag was opened but not closed, we consider it part of the string
+  if( strlen($sTagText) )
+    $sStripped .= $sTagText;
+
+  return array($sStripped, $aSkipped);
+}
+
+?>

@@ -1,0 +1,32 @@
+<html>
+<head>
+<meta name="http-equiv" content="Content-Type: text/html; charset=utf-8">
+</head>
+<body>
+
+<?php
+
+$dbh = mysql_connect('localhost', 'impact', 'impact')
+     or trigger_error(mysql_error(), E_USER_ERROR);
+mysql_select_db('LexiconTool_spanishProblem', $dbh);
+mysql_query('SET NAMES utf8');
+
+$sSelectQuery = "SELECT * FROM wordforms LIMIT 100";
+
+$oResult = mysql_query($sSelectQuery, $GLOBALS['dbh']);
+
+$sError = mysql_error($GLOBALS['dbh']);
+if( strlen($sError) )
+  print "<b>ERROR</b> in: $sQuery<br><b>ERROR</b> is: $sError<br>\n";
+
+print "<table border=1>\n";
+while( ($aRow = mysql_fetch_assoc($oResult)) )
+  print "<tr><td>" .$aRow['wordform_id'] . "</td><td>" . $aRow['wordform'] .
+    "</td></tr>\n";
+print "</table>\n";
+mysql_free_result($oResult);
+
+?>
+
+</body>
+</html>

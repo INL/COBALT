@@ -1,0 +1,39 @@
+<html>
+<head>
+
+<script type="text/javascript" src="./js/analysisFormatChecker.js">
+</script>
+
+<script type="text/javascript">
+
+var sString = 'a, <hi>, Nc';
+
+check(sString);
+
+function checkPat(sString) {
+// var sPat = 'a,';
+// var rePat = new RegExp('^(' + sPat + '|(' + sPat + ' )+)hi>, Nc$');
+// if( sString.match(rePat) )
+//  document.write("'" + sString + "' does match.");
+// else
+//  document.write("'" + sString + "' doesn't match.");
+   
+}
+
+function check(sString) {
+ if( analysisFormatIsValid(sString) )
+  document.write("'" + sString + "' is valid.");
+ else
+  document.write("'" + sString + "' is not valid.");
+}
+
+</script>
+
+
+</head>
+<body >
+
+
+
+</body>
+</html>

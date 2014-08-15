@@ -1,0 +1,59 @@
+Lexicon Tool
+
+* features
+  -  meerdere lemmata voor één token (clitica)
+  -  meerdere tokens, één lemma ('Den Haag', 'lopen ... op')
+  -  token met spatie ('zu ruck', 'per se')
+  v  patronen bij analyses
+  v  verifiëren van analyses
+  -  nieuwe feature van analyses (naast patroon, etc.)
+  -  je kan geen lemmata bewerken/verwijderen als je ze eenmaal hebt ingevoerd
+  -  view op Lexicon (welke zinnen uit alle corpora + woordvormen)
+  v  toevoegen <modern wordform>, [patronen], language
+
+* interface
+  -  woorden locken die bij anderen op het scherm staan?
+  -  dieplinken op aantal (eerste 100, nummer 220 - 360, etc.)
+  v  pijltjes in suggestie-menu
+  v  '< database' terug naar database-pagina knopje op corpus pagina
+  ?? progress bar tijdens zippen
+  v  do you really want to delete corpus/file
+  v  check of corpusnaam legaal is
+  -  filteren/sorteren op woordsoort/gloss/patroon
+  -  filteren/sorteren op verificatie-status
+  -  sorteer concordantie op context (zowel rechts als links)
+  v  toon niet canonieke woordvorm onderin
+  -  meer context in hetzelfde window
+  v  als je een tokenattestatie doet onderin moet de analyzed_wordform ook
+     gelijk geverifieerd worden
+  v  bewerkingen in onderste scherm ook voor alle geselecteerde zinnen
+  v  onthou bij fillSentences() de selectie en de scroll-positie
+  v  zinnen deselecteren gaat niet altijd goed als het te snel gaat
+  v  functie 'alles selecteren'
+ ?v? woorden met veel zinnen leveren te lange url's (met GET veriabelen) op 
+  -  menu updaten met <modern_wf>, [(p_att,3),(r_n,5)] en language
+
+* implementatie
+  v  directory met uploaded files niet in applicatie-directory
+  -  index files voor uploaded files
+  -  geüploade documenten in database
+  v  check of file al bestaat
+     ... moet nog beter, maar de hele uploaded files moeten nog beter...
+  -  database backup
+  v  inefficiënt importeren van files
+  v  lokale instellingen/paden in aparte PHP file
+ ?v?  bij woorden die vaak voorkomen worden de url's te lang voor rechterkolom
+     in middenscherm
+  -  addTokenAttestations2() split op '|'..?!?!?
+
+* manual
+  -  updaten met nieuwe (interface)functionaliteit
+  v  geheugen PHP
+  -  Apache maxQueryLength (ofzo)
+  -  database backup
+  -  nieuwe screen shots (met dont_show opties/verified/etc.)
+
+Waarom is <modern wordform> tussen haken
+theyle, teile, [t_th 0, ei_ey 1], noun, GERMAN, gloss
+theyle, teile, noun <- anders zijn deze ambigu
+theyle, noun, gloss <-
