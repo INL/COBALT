@@ -2,8 +2,8 @@ package xmlParser::EventHandler::basicImpactok;
 
 use strict;
 
-# Deze is alleen om mee te testen.Zet niks in de database, maar tokenizeert
-# alleen. Is alleen om te kijken of PageXML.pm het wel goed doet.
+# This script is only meant for testing. It puts nothing into the database 
+# but only tokenizes. This is just meant to check if PageXML.pm is doing well.
 
 use HTML::Entities;
 
@@ -11,7 +11,7 @@ use impactok::impactok;
 
 # NOTE that we never 'die' as that will print to stderr which the
 # Lexicon Tool's php scripts won't print.
-# In stead, we use impactok::endProgram()
+# Instead, we use impactok::endProgram()
 
 # Constructor
 sub new {

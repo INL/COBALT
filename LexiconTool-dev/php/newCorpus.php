@@ -8,6 +8,6 @@ chooseDb($_REQUEST['sDatabase']);
 // They just should be there.
 
 newCorpus($_REQUEST['sDatabase'], $_REQUEST['sNewCorpusName']);
-// old: newCorpus($_REQUEST['sNewCorpusName']);
+
 
 ?>

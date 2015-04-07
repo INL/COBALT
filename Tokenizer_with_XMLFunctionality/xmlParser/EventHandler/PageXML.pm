@@ -11,8 +11,6 @@ sub new {
   bless $self, $class;
 
   # Initialise
-  # $self->{bInBodyTag} = undef;
-  #$self->{bInCoordsTag} = undef;
   $self->{bInUnicodeTag} = undef;
   $self->{iPointNr} = 0;
   $self->emptyToken();
@@ -87,7 +85,6 @@ sub fillToken {
 
   $self->emptyToken();
 
-  # Tja, maar gewoon hetzelfde
   $self->{hrToken}->{sCanonicalWordFrom} = $hrText->{sText};
   $self->{hrToken}->{sWordForm} = $hrText->{sText};
   $self->{hrToken}->{iStartPos} = $hrText->{iStartPos};

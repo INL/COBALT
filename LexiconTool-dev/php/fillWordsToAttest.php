@@ -26,7 +26,6 @@ $iNrOfWordFormsPerPage = $_REQUEST['iNrOfWordFormsPerPage'];
 fillWordsToAttest($iId, $sMode,
 		  $sSortBy, $sSortMode,
 		  $bSortReverse,
-		  //rawurldecode($_REQUEST['sFilter']),
 		  $sFilter, $bCaseInsensitivity,
 		  $_REQUEST['sLemmaFilter'],
 		  $bDoShowAll, $bDoShowCorpus,

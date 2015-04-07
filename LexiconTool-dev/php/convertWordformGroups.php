@@ -2,16 +2,14 @@
 
 /******************************************************************************
 
-In de oude database structuur hing de analyse van een woordgroep aan een
-willekeurig lid van de groep. In de nieuwe aanpak heeft ieder lid alle analyses
-die de woordgroep heeft.
+In the old database structure, the analysis of a word group was attached
+to a random member of the group. In the new version of Cobalt, the analysis 
+of the group is attached to each of its members.
 
-Dit script zorgt ervoor dat de oude situatie in de nieuwe wordt omgezet.
+This script takes care of converting the old situation into the new one.
 
-Eerst wordt een query gedaan om per groepslid alle token attestaties op te
-halen die er zijn.
-Vervolgens wordt iedere analyse voor ieder groepslid gemaakt en wordt voor
-ieder groepslid een token attestatie gemaakt.
+First, a query gathers for each group member all the token attestations available.
+Later on, an analysis and a token attestation is built for each group member.
 
 ******************************************************************************/
 
@@ -58,16 +56,15 @@ if( $oResult = doSelectQuery(getSelectQuery()) ) {
 // Functions //////////////////////////////////////////////////////////////////
 
 function roundupGroup(&$aGroup) {
-  // Hier gaan we twee keer tegelijkertijd door de lijst heen om voor iedere
-  // waarde voor iedere key iets te doen
+  // Here, we loop twice through the list, for each value, each key
   foreach($aGroup as $sKey1 => $aValues1) {
     foreach($aGroup as $sKey2 => $aValues2) {    
       if( $sKey1 != $sKey2) {
 	foreach($aValues1 as $aValue1) {
-	  // We nemen de eerste als basis
+	  // We take the first one as a basis
 
-	  // Value check, want het zou kunnen dat de analyse al bestaat (i.e.
-	  // dat het al een 'nieuwe database structuur'-geval is)
+	  // Value check, because the analysis might exist already (i.e.
+	  // it might be a 'new database structure' case)
 	  if( $aValue1['sValue'] && (! valueExists($aValue1['sValue'],
 						   $aValues2)) ) {
 	    foreach($aValues2 as $aValue2) {
@@ -111,15 +108,15 @@ function getAnalysedWordformIdDerivationId($iWordFormId, $aValue, $sValue) {
   if( $sAnalyzedWordFormId_DerivationId)
     return $sAnalyzedWordFormId_DerivationId;
 
-  // Niet gevonden, dus inserteren
-  // Worden allemaal geverifieerd door user 'Tom' (user_id 50)
+  // Not found, so do an insert
+  // All verified by user 'Tom' (user_id 50)
   $sInsertQuery = "INSERT INTO analyzed_wordforms" .
     "(wordform_id, lemma_id, derivation_id, multiple_lemmata_analysis_id," .
     " verified_by, verification_date) VALUES " .
     "($iWordFormId, $sValue, 50, NOW())";
   doNonSelectQuery($sInsertQuery);
 
-  // En probeer nog eens
+  // And try again
   return getExistsingAnalyzedWordform($iWordFormId, $aValue);
 }
 
@@ -142,7 +139,7 @@ function getExistsingAnalyzedWordform($iWordFormId, $aValue) {
   return $sAnalyzedWordFormId_DerivationId;
 }
 
-// Query die per groepslid de analyses geeft
+// Query which gives analyses per group member
 //
 function getSelectQuery() {
   return

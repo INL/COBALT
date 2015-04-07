@@ -68,7 +68,7 @@ function fillWordsToAttest($iId, $sMode, $sSortBy, $sSortMode, $bSortReverse,
 	/// NEW (04 march 2011)
 	// Next we also print the lemma id of the lemma filter (which is an
 	// empty string if the lemma doesn't exist, or there is no filter)
-	// This is chopped off again in Javascript...
+	// This is chopped off again in Javascript.
 	print "$iLemmaFilter_lemmaId\n";
 	///
 
@@ -81,9 +81,7 @@ function fillWordsToAttest($iId, $sMode, $sSortBy, $sSortMode, $bSortReverse,
       print "<tr id=wordRow_$i title='" . $aRow['wordform_id'] . "\t" .
 	urlencode($sWordForm) .	"' ";
 
-      // See if the row maybe was hidden...
-      //if( $aRow['at_all'] || (($sMode == 'corpus') && $aRow['corpus_id']) ||
-      //	  (($sMode == 'file') && $aRow['document_id']) )
+      // See if the row maybe was hidden.
       $bRowIsHidden = rowIsHidden($aRow, $sMode, $iId, $bDoShowAll,
 				  $bDoShowCorpus, $bDoShowDocument);
       if( $bRowIsHidden )
@@ -99,7 +97,7 @@ function fillWordsToAttest($iId, $sMode, $sSortBy, $sSortMode, $bSortReverse,
 	print
 	  "<div onMouseOver=\"javascript: this.style.cursor = 'pointer';\" ".
 	  "id=dontShowCorpDoc_$i class=dontShow";
-	///	if( $aRow['corpus_id'] ) // It is actually hidden for the corpus
+	// It is actually hidden for the corpus
 	if( $bRowIsHidden && $aRow['corpus_id'] )
 	  print "_ " .
 	    "title=\"Do show this word again for this corpus\" " .
@@ -119,7 +117,7 @@ function fillWordsToAttest($iId, $sMode, $sSortBy, $sSortMode, $bSortReverse,
 	print
 	  "<div onMouseOver=\"javascript: this.style.cursor = 'pointer';\" " .
 	  "id=dontShowCorpDoc_$i class=dontShow";
-	///	if( $aRow['document_id'] )
+	
 	if( $bRowIsHidden && $aRow['document_id'] )
 	  print "_ " .
 	    "title=\"Do show this word again for this document\" " .
@@ -138,7 +136,7 @@ function fillWordsToAttest($iId, $sMode, $sSortBy, $sSortMode, $bSortReverse,
       print
 	"<div onMouseOver=\"javascript: this.style.cursor = 'pointer';\" " .
 	"id=dontShowAtAll_$i class=dontShow";
-      ///      if( $aRow['at_all'] )
+      
       if( $bRowIsHidden && $aRow['at_all'] )
 	print "_ " .
 	  "title=\"Show this word again\" class=dontShowLink " .
@@ -284,9 +282,7 @@ function printClickableTokens($iWordFormId, $sAnalysesInDb, $iRowNr) {
 	
 	"else ".
 	"{".
-	//"if (selectionIsNotTooLarge()) ".
 	"updateAnalysesOfSelectedRows($iWordFormId, $aTuple[1], $iRowNr); " .
-	//" else tokenAttestSelected($iWordFormId, $aTuple[1], $iRowNr);". // we don't use tokenAttestSelected anymore
 	"}\">" .
 	
 	"$sPrintTuple</span>";
@@ -509,15 +505,15 @@ function fileIsTokenized($sDocumentPath) {
       $i++;
     }
     fclose($fh);
-    return TRUE; // If we get here it means we didn't fail earlier...
+    return TRUE; // If we get here it means we didn't fail earlier.
   }
-  // Something went wrong..?!?
+  
   
   echo("We couldn't check if the files was tokenized");
   return FALSE;
 }
 
-// Puts the document in the database
+// Put the document in the database
 // First we parse the tokenized document, then we go through the tokens to calculate
 // the frequencies in this document.
 // For optimisation, the word forms are inserted per 1000 regardless of whether
@@ -586,13 +582,11 @@ function parseTokenizedDocument($sDocumentPath) {
       $aLine = explode("\t", $sLine);
       // Avoid empty words at end of file or something...
       if( strlen($aLine[0])&&
-	  /// Nieuwe interpunctie stukje
+	  // New punctuation part
 	  (! (isset($aLine[4]) && ($aLine[4] == 'isNotAWordformInDb')) )
 	  ///
 	  ) {
-	///
-	/// printLog("Cols: 0:$aLine[0], 1:$aLine[1], 2:$aLine[2], 3:$aLine[3], 4:$aLine[4].\n");
-	///
+
 	array_push($aResult, $aLine[0]);
 
 	// Here we build the values that will feature in an INSERT statement
@@ -898,7 +892,7 @@ function printMainPage($sDatabase, $iId, $sName, $sMode, $iUserId, $sUserName,
     print "'&bDoShowAll=$bDoShowAll&bDoShowDocument=$bDoShowDocument" .
       "&iFileId=$iId&sFileName=$sName";
   // Case insensitiviy
-  // NOTE that we pass the real boolean value in the string...
+  // NOTE that we pass the real boolean value in the string.
   print "&bCaseInsensitivity=' + " . 
     "document.getElementById('caseInsensitivity').checked;\">&nbsp;";
   $sCkecked = ($bCaseInsensitivity) ? 'checked ' : '';
@@ -906,9 +900,6 @@ function printMainPage($sDatabase, $iId, $sName, $sMode, $iUserId, $sUserName,
     "title='Check for case insensitivity'>";
   print "</td>\n";
 
-  // Lemma filter box
-  //if($sLemmaFilter == '')
-  //  $sLemmaFilter = 'Filter lemmata...';
 
   $sPrintLemmaFilter = ($sLemmaFilter == '') ? 'Filter lemmata...' :
     preg_replace('/\\\"/', '&#34',
@@ -933,8 +924,6 @@ function printMainPage($sDatabase, $iId, $sName, $sMode, $iUserId, $sUserName,
     " value=''>";
 
   // Edit lemma
-  // Ugly, I know, with the 16x16 image, but it won't work otherwise
-  // (with stylesheet/etc.)
   print "<span id=editLemma title='Show/hide lemma edit box'>" .
     "<img src='./img/16x16.png'></span>\n";
 
@@ -1164,7 +1153,7 @@ function fillSentences($sDatabase, $iId, $sMode, $sWordForm, $iWordFormId,
     $sDocIds = $sSeparator = $sDocIdsForGroupMembers = $sDocIdFGMSep = '';
     $iTotalNrOfSentences = 0;
     while( ($aRow = mysql_fetch_assoc($oResult)) ) {
-      // Optimization, only works when not sorting...)
+      // Optimization, only works when not sorting
       if( ($sSortSentencesBy == 'doc') &&
 	  ($iTotalNrOfSentences <= $iStartAtSentence) &&
 	  ( ($iTotalNrOfSentences + $aRow['frequency']) >= $iStartAtSentence)) {
@@ -1189,7 +1178,7 @@ function fillSentences($sDatabase, $iId, $sMode, $sWordForm, $iWordFormId,
     if( $sSortSentencesBy != 'doc') // Set to normal value if we can't optimize
       $sDocIdsForGroupMembers = $sDocIds;
     $aGroupMemberOnsetsPerDocId =
-      getGroupMemberOnsetsPerDocId(//$sDocIds,
+      getGroupMemberOnsetsPerDocId(
 				   $sDocIdsForGroupMembers, $iWordFormId);
 
     while( ($aRow = mysql_fetch_assoc($oResult)) ) {
@@ -1302,7 +1291,7 @@ function fillSentences($sDatabase, $iId, $sMode, $sWordForm, $iWordFormId,
       // still works as it should.
       // Also NOTE that we do the sentence classes again (so we keep the nice
       // alternating pattern)
-      /// print $value['index'] . '<br>';
+
       print preg_replace("/(id=sentence_|" .
 			 "startSelection\(|" .
 			 "showTokenAttSuggestions\(this\, [0-9]+\,|" .
@@ -1463,7 +1452,7 @@ function fillSentencesForDoc($sDatabase, $iDocumentId, $sDocumentTitle,
 		"class=sentence$sSentenceClassPostfix", $aRows, $iSentenceNr);
     if( in_array("$iDocumentId,$iOnset,$iOffset", $aSelectedSentences) ) {
       printToRows("-", $aRows, $iSentenceNr);
-      /// $iSelectedSentencesIterator++;
+
     }
     printToRows(">", $aRows, $iSentenceNr);
 
@@ -1576,7 +1565,7 @@ function fillSentencesForDoc($sDatabase, $iDocumentId, $sDocumentTitle,
 		// so we take some characters extra (because there might be
 		// comma's or something).
 		// Also, we subsitute dashes for &#8209; which are
-		// non-breakable which looks better in the interface...
+		// non-breakable which looks better in the interface.
 		str_replace('-', '&#8209;', $sWordFormInText) .
 		"</div></td>" .
 		// The right part of the sentence
@@ -1687,13 +1676,6 @@ function printToRows($sString, &$aRows, $iRowNr) {
 // Return ($iOnset, $iOffset, $iPosX, $iPosY, $iPosHeight, $iPosWidth)
 //
 function getOnOffset($sString) {
-  /*
-  print "Matching: '$sString': ";
-  if( preg_match("/^[^\t]+\t(\d+)\t(\d+)(\t(isNotAWordformInDb)?)?(\t(\d+)\t(\d+)\t(\d+)\t(\d+))?$/", $sString, $aMatch))
-    print "Yes, $aMatch[6]<br>";
-  else
-    print "No<br>";
-  */
 
   // Old situation
   if( preg_match("/^[^\t]+\t(\d+)\t(\d+)[\r\n]?$/", $sString, $aMatch)) {
@@ -1712,7 +1694,7 @@ function getOnOffset($sString) {
     }
   }
 
-  return array(-1, -1, 0, 0, 0, 0); // <- This should never happen...!
+  return array(-1, -1, 0, 0, 0, 0); // <- This should never happen!
 }
 
 // This string is used to make a left and right part to show in the lower
@@ -1721,7 +1703,7 @@ function getOnOffset($sString) {
 // The string comes in as a (possibly broken) series of
 // canonical wordform<TAB>wordform<TAB>onset<TAB>offset
 //
-// The text always begins with a newline (see above)...
+// The text always begins with a newline (see above).
 function makePrintable($iDocumentId, $iHeadWordOnset, $iHeadWordOffset,
 		       $sString, $oGroupOnOffsets, &$aGroupOnOffsetsRow,
 		       &$sGroupAnalyses, $iSentenceNr, &$aRows, $bBuildIndex,
@@ -1732,11 +1714,11 @@ function makePrintable($iDocumentId, $iHeadWordOnset, $iHeadWordOffset,
   $sPartWithTags = '';
   // This regular expression takes the newline, the canonical word form and 
   // the wordform as in the text, which printed.
-  // Only complete words are printed (this is to avoid things like
+  // Only complete words are printed. This is to avoid things like
   //  <ne tag="">Hello</ne>
-  // to mess up things (especially with quotes...)
+  // to mess up things (especially with quotes)
   
-  //old: preg_match_all("/[\r\n]+[^\n\r\t]+\t([^\n\r\t]+)\t(\d+)\t(\d+)(\tisNotAWordformInDb)?/",
+  // OLD: preg_match_all("/[\r\n]+[^\n\r\t]+\t([^\n\r\t]+)\t(\d+)\t(\d+)(\tisNotAWordformInDb)?/",
   //  FIRST PART of the REGEX removed because otherwise the first word was never shown
   preg_match_all("/[^\n\r\t]+\t([^\n\r\t]+)\t(\d+)\t(\d+)(\tisNotAWordformInDb)?/",
 		 $sString, $aMatches);
@@ -1769,6 +1751,7 @@ function makePrintable($iDocumentId, $iHeadWordOnset, $iHeadWordOffset,
 	// ***** begin part for getLateralTokenAttestations ***** 
 	
 	// functionality is built, but not yet in use
+	//                         ------------------
 	// BEWARE: this particular piece of code is NOT UP-TO-DATE anymore. It has a BUG since it makes use of untokenized words
 	//    so looking up the words in the wordforms tables sometimes fails due to punctuation attached to word forms.
 	//    This causes the context information to be sometimes incomplete.
@@ -1778,7 +1761,7 @@ function makePrintable($iDocumentId, $iHeadWordOnset, $iHeadWordOffset,
 	//    and also change of indexes in $aMatches[..] since one more group was added in the regex!
 	$useLateralTokenAttestations = false;
 	
-	if ($useLateralTokenAttestations) // BEWARE:   buggy, read comment hereabove!!!
+	if ($useLateralTokenAttestations) // BEWARE:   buggy, read comment hereabove!
 	{
 		$sLateralToken = $aMatches[1][$i]."&nbsp;&lt;?&gt;";
 		if( $GLOBALS['bFullAnalyses'] )
@@ -1838,11 +1821,11 @@ function makePrintableWithTags($sDatabase, $iDocumentId, $sString, $centralWordN
   $sPartWithTags = '';
   // This regular expression takes the newline, the canonical word form and 
   // the wordform as in the text, which printed.
-  // Only complete words are printed (this is to avoid things like
+  // Only complete words are printed. This is to avoid things like
   //  <ne tag="">Hello</ne>
-  // to mess up things (especially with quotes...)
+  // to mess up things (especially with quotes)
   
-  // old: preg_match_all("/[\r\n]+[^\n\r\t]+\t([^\n\r\t]+)\t(\d+)\t(\d+)(\tisNotAWordformInDb)?/",
+  // OLD: preg_match_all("/[\r\n]+[^\n\r\t]+\t([^\n\r\t]+)\t(\d+)\t(\d+)(\tisNotAWordformInDb)?/",
   //  FIRST PART of the REGEX removed because otherwise the first word was never shown
   preg_match_all("/([^\n\r\t]+)\t([^\n\r\t]+)\t(\d+)\t(\d+)(\tisNotAWordformInDb)?/",
 		 $sString, $aMatches, PREG_OFFSET_CAPTURE);
@@ -1888,11 +1871,11 @@ function makePrintable_simple( $sString) {
   $sPart = '';
   // This regular expression takes the newline, the canonical word form and 
   // the wordform as in the text, which printed.
-  // Only complete words are printed (this is to avoid things like
+  // Only complete words are printed. This is to avoid things like
   //  <ne tag="">Hello</ne>
-  // to mess up things (especially with quotes...)
+  // to mess up things (especially with quotes)
   
-  // old: preg_match_all("/[\r\n]+[^\n\r\t]+\t([^\n\r\t]+)\t(\d+)\t(\d+)/",
+  // OLD: preg_match_all("/[\r\n]+[^\n\r\t]+\t([^\n\r\t]+)\t(\d+)\t(\d+)/",
   //  FIRST PART of the REGEX removed because otherwise the first word was never shown
   preg_match_all("/[^\n\r\t]+\t([^\n\r\t]+)\t(\d+)\t(\d+)/",
 		 $sString, $aMatches);
@@ -1907,8 +1890,7 @@ function makePrintable_simple( $sString) {
 // A string like "1,3,234|6,8,234" becomes a multi-dimensional array like:
 //  [0] => [1, 3, 234]
 //  [1] => [6, 8, 234] 
-// Sadly enough MySQL can't deliver the list sorted (or I don't know how
-// anyway) so we sort it here... 
+// Sadly enough MySQL can't deliver the list sorted, so we sort it here. 
 function explodeTokenAtts($sVerifiedTokenAtts) {
   $aVerifiedTokenAtts = array();
   if( $sVerifiedTokenAtts ) {
@@ -2003,7 +1985,7 @@ function changeWordForm($sDatabase, $iUserId, $iOldWordFormId, $sOldWordForm,
 			$sNewWordForm, $sSelectedSentences) {
 			
 			
-  // are we operating in full database mode (no files)?
+  // Are we operating in full database mode (no files)?
   $bFullDatabaseMode = fullDatabaseMode($sDatabase);
 
   printLog("changeWordForm($iUserId, $iOldWordFormId, '$sOldWordForm', " .
@@ -2175,7 +2157,7 @@ function changeWordForm($sDatabase, $iUserId, $iOldWordFormId, $sOldWordForm,
 
 	printLog("aNewWordForms:\n");
 	for($i = 0; $i < count($aNewWordForms); $i++) {
-	  // A bit ad hoc but for the moment it works I guess...
+	  // A bit ad hoc 
 	  if( isset($GLOBALS['bNormalizeToken']) && $GLOBALS['bNormalizeToken'] )
 		$aNewWordForms[$i] = normalizeToken($aNewWordForms[$i]);
 	  printLog("\t'" . $aNewWordForms[$i] . "'\n");
@@ -2253,8 +2235,7 @@ function writeLine($fhTmpFile, $iOffsetChange, $sLine) {
     fwrite($fhTmpFile, $sLine);
   else {
     // Made compliant with position information
-    /// Hier gebleven...
-    /// if(preg_match("/^(.+\t)(\d+)\t(\d+)(\t\d+\t\d+\t\d+\t\d+)$/",
+    // OLD: if(preg_match("/^(.+\t)(\d+)\t(\d+)(\t\d+\t\d+\t\d+\t\d+)$/",
     if(preg_match("/^([^\t]+\t[^\t]+\t)(\d+)\t(\d+)(\t.*)$/",
 		  $sLine, $aMatches) ) {
       fwrite($fhTmpFile,
@@ -2263,7 +2244,7 @@ function writeLine($fhTmpFile, $iOffsetChange, $sLine) {
     }
     else {
       // Non-position info case
-      ///if(preg_match("/^(.+\t)(\d+)\t(\d+)$/", $sLine, $aMatches) )
+      // OLD: if(preg_match("/^(.+\t)(\d+)\t(\d+)$/", $sLine, $aMatches) )
       if(preg_match("/^([^\t]+\t[^\t]+\t)(\d+)\t(\d+)$/", $sLine, $aMatches) )
 		fwrite($fhTmpFile,
 			   $aMatches[1] . ($aMatches[2] + $iOffsetChange) . "\t" .

@@ -7,7 +7,7 @@ sub new {
   my $self = \%hOptions;
   bless $self, $class;
 
-  # Initialise something?!?
+  # Initialise 
   $self->{iLevel} = 0;
   $self->{bInQtTag} = undef;
 
@@ -17,7 +17,6 @@ sub new {
 sub atStartOfFile {
   my ($self) = @_;
 
-  #print ">> At start of file\n";
 }
 
 # This one is called when a tag has been read completely
@@ -79,8 +78,6 @@ sub setOutputFileHandle {
 
 sub atEndOfFile {
   my ($self) = @_;
-
-  # print ">> At end of file\n";
 }
 
 1;

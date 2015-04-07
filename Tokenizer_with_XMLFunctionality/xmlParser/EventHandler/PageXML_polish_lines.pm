@@ -12,7 +12,7 @@ use impactok::impactok;
 
 # NOTE that we never 'die' as that will print to stderr which the
 # Lexicon Tool's php scripts won't print.
-# In stead, we use impactok::impactok::endProgram()
+# Instead, we use impactok::impactok::endProgram()
 
 sub initDatabase {
   my ($self, $sDatabase) = @_;
@@ -54,7 +54,6 @@ sub new {
   $self->{yMax}=0;
   $self->{yMin}=0;
   $self->{tagToExtractTextFrom}  = "TextLine";
-  #$self->{}
   return $self;
 }
 
@@ -143,15 +142,14 @@ sub emptyTextBlock {
   $self->{hrText}->{iEndPos} = undef;
   # We empty the coordinates at the end of a <IGT:TextBlock> tag
   $self->{hrText}->{arCoordinates} = [];
-##   unless(exists($self->{hrText}->{arCoordinates}));
 }
 
 # Additional sub routines #####################################################
 
 
-# hang de bounding box van de coordinaten aan de textregion...
-# Oppassen: in de djvu images zit het punt (0,0) links ONDER.
-# aangezien de imageHeight niet in de database komt, moeten we dat hier flippen
+# Attach the bounding box of the coordinates to the text region...
+# beware: in the djvu images, the (0,0) dot is the bottom left.
+# The imageHeight is not stored in the datbase, so we have to compute it here
 
 sub attachCoordinates
 {
@@ -160,7 +158,7 @@ sub attachCoordinates
   {
     my $H = $self->{imageHeight};
     $self->{hrText}->{arCoordinates} = [$self->{xMin}, $H - $self->{yMax}, $self->{yMax} - $self->{yMin}, $self->{xMax} - $self->{xMin}];
-    ### warn  join(", ", @{$self->{hrText}->{arCoordinates}});
+    
   }
 }
 
@@ -193,7 +191,6 @@ sub handleCoordinate
 sub emptyCoordinates {
   my ($self) = @_;
 
-  # Gooi leeg.
 }
 
 # $hrState is a hash that you can use for whatever you want and that will keep

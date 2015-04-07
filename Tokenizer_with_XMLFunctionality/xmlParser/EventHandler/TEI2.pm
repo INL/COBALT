@@ -74,8 +74,6 @@ sub atText {
       $self->{hrToken}->{sWordForm} .= $1;
     }
     else {
-      #print "Skipping text: '$hrText->{sText}'\n"
-      #	unless($hrText->{sText} =~ /^\s+$/s);
       $self->writeToken();
     }
   }

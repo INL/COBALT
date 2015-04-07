@@ -5,7 +5,7 @@
 *                                                                             *
 ******************************************************************************/
 
-// Very simple, just check if somebody typed in something at all..
+// Very simple, just check if somebody typed in something at all.
 function checkCorpusForm(oForm) {
   if( ! oForm.sCorpusName.value.match(/\w/) ) {
     alert("Please fill in a name...");
@@ -83,11 +83,9 @@ function ajaxCall(sPage, oDiv, sErrorMessage) {
 // This is needed when the word form was changed.
 function fillWordsToAttest(iOldSelectedRow, sOldSelectedRowTitle,
 			   sNewWordForm) {
-  // Reset the global variables. Whatever word was selected isn't anymore...
+  // Reset the global variables. Whatever word was selected isn't anymore.
   iSelectedWordId = -1;
-  /// 2011-10-04
   iSelectedRow = -1;
-  ///
 
   // Here we can set the step value (200).
   // If the the number of word forms per page is lower than 200 we set it to
@@ -104,7 +102,6 @@ function fillWordsToAttest(iOldSelectedRow, sOldSelectedRowTitle,
   }
 
   // Start the recursion
-  /// fillWordsToAttest_(0, iStepValue, bRecurse,
   fillWordsToAttest_(iStartAt, iStepValue, bRecurse,
 		     iOldSelectedRow, sOldSelectedRowTitle, sNewWordForm);
 }
@@ -201,13 +198,13 @@ function fillWordsToAttest_(iNewStartAt, iStepValue, bRecurse, iOldSelectedRow,
 	    "<a href=\"javascript:" + sScript + "\" >" +
 	    "<img src=\"./img/editLemma.png\" border=0></a>";
 	}
-	else // Ugly, but I can't get it working otherwise
+	else 
 	  document.getElementById('editLemma').innerHTML =
 	    "<img src='./img/16x16.png'>";
       }
 
       if( (! oXmlHttp.responseText.length) || (iTotalNrOfWords == 0) ) {
-	// We are done presumably
+	// We are done 
 	oProgressBar.innerHTML = 'Done';
 	// So it can go invisible again
 	oProgressBar.style.visibility = 'hidden';
@@ -274,8 +271,6 @@ function fillWordsToAttest_(iNewStartAt, iStepValue, bRecurse, iOldSelectedRow,
 		  iNrOfWordFormsPerPage + "&iAmountOfContext=" +
 		  iAmountOfContext + "&" + uniqueString();
 
-		// I know that <center> tags are deprecated but setting
-		// text-align to center in the css just wouldn't do it...
 		sPageLinks = "<center>" + 
 		  "<table cellspacing=0 cellpadding=1>" +
 		  "<tr>" +
@@ -397,9 +392,6 @@ function fillWordsToAttest_(iNewStartAt, iStepValue, bRecurse, iOldSelectedRow,
 	    }
 	  }
 
-	  ///alert('iProgress = ' + iNewStartAt + '/' + iTotalNrOfWords +
-	  ///' * 100 = ' + iProgress);
-
 	  var iProgress = Math.floor((iNewStartAt/iTotalNrOfWords)* 100);
 	  // Now that we have everything, fill the progress bar
 	  oProgressBar.innerHTML =
@@ -496,7 +488,6 @@ function dbAttestations(iWordFormId, sTuple, iRowNr) {
       "onMouseOver=\"javascript: this.style.cursor = 'pointer';" +
       " this.className = 'clickableTokenAtt_';\" " +
       "onMouseOut=\"javascript: this.className = 'clickableTokenAtt';\" " +
-	  //"onClick=\"javascript: tokenAttestSelected(" + iWordFormId + ", " +  // we don't use tokenAttestSelected anymore
       "onClick=\"javascript: updateAnalysesOfSelectedRows(" + iWordFormId + ", " +
       aAttestation[0] + ", " + iRowNr + ")\">" + sPrintTuple + "</span>";
 
@@ -595,7 +586,7 @@ function addNewTokenAttestation(iDocumentId, iSentenceNr, iWordFormId,
 		
 	
   // If some rows were selected we attest for all these rows including the one
-  // that was clicked in (which isn't necessarily selected... try it).
+  // that was clicked in (which isn't necessarily selected).
   // NOTE that this might result in a double entry in the sSelecteds list, in
   // case it *was* selected.
   var sSelecteds = iDocumentId + "," + iStartPos + "," + iEndPos;
@@ -621,16 +612,15 @@ function addNewTokenAttestation(iDocumentId, iSentenceNr, iWordFormId,
 
     oXmlHttp.onreadystatechange=function() {
       if(oXmlHttp.readyState == 4) {
-	//document.getElementById('tokenAtts_' + iDocumentId + '_' +
-	//			iStartPos).innerHTML = oXmlHttp.responseText;
 	var oWordRow = document.getElementById('wordRow_' + iSelectedRow);
 	var aIdAndWf = oWordRow.title.split("\t");
 	
 	// Update the sentences part of the screen 
-	// old way: update whole view, which is often slow (and makes modified analyses disappear in some sorting modes)
-	//fillSentences(iWordFormId, aIdAndWf[1], false); 	
 	
-	// new way: update only the selection and don't change sorting (as the update is per row)
+	// OLD WAY: update whole view, which is often slow (and makes modified analyses disappear in some sorting modes)
+	//   fillSentences(iWordFormId, aIdAndWf[1], false); 	
+	
+	// NEW WAY: update only the selection and don't change sorting (as the update is per row)
 	updateAnalysesOfSelectedRowsOnScreen(aSelected, iSentenceNr);
 	updateCheckBoxes(aSelected, "checked");
 		
@@ -653,22 +643,6 @@ function addNewTokenAttestation(iDocumentId, iSentenceNr, iWordFormId,
 		 "&iRowNr=" + iSelectedRow + "&" + uniqueString(),
 		 document.getElementById('tokenAttsInDb_' + iWordFormId),
 		 "");
-
-	/*** Somehow this is not needed...
-	// The attestation now is verified by this user, so check the box
-	var oCheckBox =
-	document.getElementById('checkBox_tokenAtt_' + iDocumentId + '_' +
-				iStartPos);
-
-	if( oCheckBox ) {
-	  oCheckBox.className = 'checked';
-	  oCheckBox.innerHTML = "<img src='./img/checked.gif'>";
-	}
-	else {
-	  alert('No checkbox "checkBox_tokenAtt_' + iDocumentId + '_' +
-		iStartPos + '"');
-	}
-	***/
       }
     }
 
@@ -726,7 +700,7 @@ function saveTextAttestations(iWordFormId, iRowNr, oPosInput) {
   
   oXmlHttp.onreadystatechange=function() {
     if(oXmlHttp.readyState == 4) {
-      // Check if the response is as expected...
+      // Check if the response is as expected.
       if(oXmlHttp.responseText.length) {
 	oDiv.innerHTML = oXmlHttp.responseText;
       }
@@ -842,7 +816,7 @@ function selectOldRow(iNewStartAt, iOldSelectedRow, sOldSelectedRowTitle) {
 }
 
 // Sadly, we don't know anything about the new word form row, except the new
-// word form. So, we have to look at every row on the screen...
+// word form. So, we have to look at every row on the screen.
 function selectNewRow(iNewStartAt, sNewWordForm) {
   var i = iNewStartAt;
   var oWordRow = document.getElementById('wordRow_' + i);
@@ -850,7 +824,7 @@ function selectNewRow(iNewStartAt, sNewWordForm) {
   // If we extract the word forms from the titles below, they come URL encoded.
   // The sNewWordForm however is not encoded. So, because it is quicker to
   // encode that just once (rather than decoding the word forms from the titles)
-  // we encodeURIComponent() it here...
+  // we encodeURIComponent() it here.
   var sEncodedNewWordForm = encodeURIComponent(sNewWordForm);
 
   while( oWordRow ) {
@@ -875,7 +849,7 @@ function selectTextAttestationRow(iRowNr) {
   iStartAtSentence = 0;
 
   // This is just a detail to have a clean screen at start-up
-  // These buttons only appear once you start working...
+  // These buttons only appear once you start working.
   document.getElementById('sortingButtons').style.visibility = 'visible';
 
   hideMenus(); // Could be open while someone hits 'Enter'
@@ -926,7 +900,7 @@ function selectTextAttestationRow(iRowNr) {
   }
 }
 
-// This one is called, well...
+
 function onNrOfSentencesPerWordformChange(iNewNrOfSentencesPerWordform) {
   iNrOfSentencesPerWordform = iNewNrOfSentencesPerWordform;
   iStartAtSentence = 0; // Reset
@@ -982,7 +956,7 @@ function fillSentences(iWordFormId, sWordForm, bResetScrollTop) {
   var oDiv = document.getElementById('sentences');
   var sErrorMessage = "No sentences found for '" + sWordForm + "'";
 
-  // Reset, or keep it scrolled to where it was...
+  // Reset, or keep it scrolled to where it was.
   var iNewScrollTop = (bResetScrollTop) ? 0 : oDiv.scrollTop;
 
   // Custom AJAX bit
@@ -1007,7 +981,7 @@ function fillSentences(iWordFormId, sWordForm, bResetScrollTop) {
       if( oXmlHttp.responseText.length ) {
 	oDiv.innerHTML = oXmlHttp.responseText;
 
-	// Reset, or keep it scrolled to where it was...
+	// Reset, or keep it scrolled to where it was.
 	oDiv.scrollTop = iNewScrollTop;
 	// As pointed out above, the order of sentences is very likely to have
 	// been changed, so keeping the menu where it was doesn't really make
@@ -1023,8 +997,7 @@ function fillSentences(iWordFormId, sWordForm, bResetScrollTop) {
 	var iNrOfSteps = (oDoneDiv.title/iNrOfSentencesPerWordform);
 	var oSentenceLinks = document.getElementById('sentenceLinks');
 	if( iNrOfSteps > 1) {
-	  // I know that <center> tags are deprecated but setting
-	  // text-align to center in the css just wouldn't do it...
+	  
 	  sSentenceLinks = "<center>" + 
 	    "<table cellspacing=0 cellpadding=1 border=0>" +
 	    "<tr>"+
@@ -1100,7 +1073,7 @@ function fillSentences(iWordFormId, sWordForm, bResetScrollTop) {
 	    "</center>";
 	
 	  oSentenceLinks.innerHTML = sSentenceLinks;
-	  //oSentenceLinks.style.display = 'block';
+	  
 
 	  // Set the background if necessary
 	  setSentenceScrollerBackground(iNr);
@@ -1170,7 +1143,7 @@ function deleteAnalysis(iWordFormId, iAnalyzedWordFormId, iRowNr) {
 
     oXmlHttp.onreadystatechange=function() {
       if(oXmlHttp.readyState == 4) {
-	// Check if the response is as expected...
+	// Check if the response is as expected.
 	if(oXmlHttp.responseText.length)
 	  critical_alert(oXmlHttp.responseText); // if an error occured
 	else {
@@ -1208,7 +1181,7 @@ function verifyAnalysis(oObj, iWordFormId, iAnalyzedWordFormId, iRowNr) {
 
   oXmlHttp.onreadystatechange=function() {
     if(oXmlHttp.readyState == 4) {
-      // Check if the response is as expected...
+      // Check if the response is as expected.
       ///if(oXmlHttp.responseText.match(/error/i)) {
       if(oXmlHttp.responseText.length)
 		critical_alert(oXmlHttp.responseText); // if an error occured
@@ -1247,9 +1220,6 @@ function selectionIsNotTooLarge(){
 	var iSelectionSize = temp.length;
 	var threshold = .3 * iNrOfWordFormsPerPage; // percentage of whole view size to allow
 	if (threshold < 15) threshold = 15;
-	
-	//console.log(temp);
-	//console.log("iSelectionSize="+iSelectionSize+" threshold="+threshold);
 		
 	return iSelectionSize <= threshold;
 }

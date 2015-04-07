@@ -7,7 +7,7 @@
 // with a slight adjustment to be able to handle arbitrary input.
 
 // The gap character is a tab ("\t"), so if you have strings containing tabs as
-// input, that is fine, but the output can be ambiguous... 
+// input, that is fine, but the output can be ambiguous.
 
 $aSimilarities = FALSE;
 $aNonTokenChars = FALSE;
@@ -17,12 +17,12 @@ $cGapChar = "\t";
 function stringAlign($sS, $sT) {
   // We do this so we can work with the indices of characters in strings.
   // Curly braces ($sS{2} e.g.) doesn't work when the caharacter in question is
-  // an utf-8 character... ;-(
+  // an utf-8 character.
   $aS = strToUtf8Array($sS);
   $aT = strToUtf8Array($sT);
 
-  $iN = count($aS); //strlen($sS);
-  $iM = count($aT); //strlen($sT);
+  $iN = count($aS); 
+  $iM = count($aT); 
 
   $aD = array();
   for($i = 0; $i < $iM; $i++) {
@@ -102,8 +102,6 @@ function stringAlign($sS, $sT) {
     }
   }
 
-  /// print "Returning '$sS_Align', '$sT_Align'.<br>\n"; 
-
   return array($sS_Align, $sT_Align);
 }
 
@@ -139,7 +137,7 @@ function initGlobals() {
 function getSimScore($c1, $c2) {
   // NOTE that case differences are neglected.
   // Also NOTE that this fails when we have 'Ä' against 'ä' because
-  // strtolower() won't do utf-8 and mb_strtolower() is not supported... ;-(
+  // strtolower() won't do utf-8 and mb_strtolower() is not supported.
   if( ($c1 == $c2) || (strtolower($c1) == strtolower($c2)) )
     return 2;
 

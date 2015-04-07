@@ -2,8 +2,6 @@
 
 // PHP version of http://www.biorecipes.com/DynProgBasic/code.html
 
-//$sS = "ACGGTAG";
-//$sT = "CCTAAG";
 
 $sS = "ACCCCC";
 $sT = "CCCACTT";
@@ -33,7 +31,7 @@ for($i = 0; $i <= $iM; $i++) {
   $aD[$i][0] = $iGapScore * $i;
 }
 
-//printArr($aD);
+
 
 for($i = 1; $i <= $iM ; $i++) {
   for($j = 1; $j <= $iN; $j++) {

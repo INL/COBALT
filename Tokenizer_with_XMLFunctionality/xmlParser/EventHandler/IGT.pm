@@ -13,7 +13,7 @@ use xmlParser::EventHandler::databaseFunctions;
 
 # NOTE that we never 'die' as that will print to stderr which the
 # Lexicon Tool's php scripts won't print.
-# In stead, we use impactok::impactok::endProgram()
+# Instead, we use impactok::impactok::endProgram()
 
 # Constructor
 sub new {
@@ -132,7 +132,7 @@ sub atTag {
 
 	# If it is the same group we add it to the collected tokens
 	if( $hrTag->{hrAttributes}->{gid} == $self->{iGroupId} ) {
-	  ; # Even niks nu
+	  ; # for now, nothing here
 	}
 	else { # Not a new group member, the we flush everything before
 	  $self->putLocTokensInDb($self->{arNameTokens})

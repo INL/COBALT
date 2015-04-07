@@ -4,7 +4,7 @@ use strict;
 
 # NOTE that we never 'die' as that will print to stderr which the
 # Lexicon Tool's php scripts won't print.
-# In stead, we use impactok::endProgram()
+# Instead, we use impactok::endProgram()
 
 # Constructor
 sub new {
@@ -14,14 +14,8 @@ sub new {
   bless $self, $class;
 
   # Initialise
-  #$self->{bInSTag} = undef;
-  #$self->{bInWTag} = undef;
-  # $self->{bInPcTag} = undef;
   $self->{bInCTag} = undef;
   $self->{sText} = '';
-
-  # Initialize
-  # $self->emptyTextBlock();
 
   return $self;
 }
@@ -45,12 +39,7 @@ sub atTag {
     $self->{bInCTag} = undef;
   }
   elsif( $hrTag->{sTagName} eq "lb" ) {
-    # NOTE that we append the line breaks right away as it is a unary tag
-    # my $iNrOfLineBreaks = ( $hrTag->{hrAttributes}->{n} )
-    #  ? $hrTag->{hrAttributes}->{n} : 1;
-    # $self->{sText} .= "\n" x $iNrOfLineBreaks;
-    ## Actually, newlines don't make for very readible text.
-    ## So we print a single space in stead.
+
     $self->{sText} .= " ";
   }
 }
@@ -59,7 +48,6 @@ sub atTag {
 sub atText {
   my ($self, $hrText) = @_;
 
-##  if( $self->{bInWTag} || $self->{bInPcTag} || $self->{bInCTag}) {
   if( $self->{bInCTag}) {
     $self->{sText} .= $hrText->{sText};
   }
@@ -70,7 +58,6 @@ sub atText {
 sub atStartOfFile {
   my ($self, $sInputFileName) = @_;
 
-  #$self->{sInputFileName} = $sInputFileName;
   $self->{sText} = '';
 }
 

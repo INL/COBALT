@@ -1,13 +1,15 @@
 <?php
 require_once('globals.php');
 $sImage = isset($_REQUEST['sImage']) ? $_REQUEST['sImage'] : false;
-// Hack for JSI, whose 'images' in fact are HTML pages sometimes.
-if( preg_match("/\.html/i", $sImage) )
-    header( "Location: $sImage" ); // Redirect
 
-// Hack for UWAR, who need the images highlighted in their own djvu service
-// if (preg_match("/djvu:/i", $sImage))
-if($GLOBALS['bDisplayImageInDJVU']) {  
+// Special cases: 
+
+// If the 'images' are in fact HTML pages, do a redirect 
+if( preg_match("/\.html/i", $sImage) )
+    header( "Location: $sImage" );
+
+// If the images must be shown through a special web service, do a redirect 
+if($GLOBALS['bDisplayImageInService']) {  
    if(preg_match("/([0-9]{6,8})([^0-9\/][^\/]*)?\.xml/i", $sImage,$matches)
       > 0) {
      $sID = sprintf("%08d", $matches[0]);
@@ -19,15 +21,15 @@ if($GLOBALS['bDisplayImageInDJVU']) {
      $iPosWidth = isset($_REQUEST['iPosWidth'])
        ? $_REQUEST['iPosWidth'] : false;
 
-     $sDjvuLocation = $GLOBALS['sDJVULocation'];
+     $sImageServiceLocation = $GLOBALS['sImageServiceLocation'];
 
-     $sDJVU = "$sDjvuLocation/$sID.djvu?djvuopts&page=1&zoom=width" .
+     $sURL = "$sImageServiceLocation/$sID.host?hostopts&page=1&zoom=width" .
        "&showposition=$iPosX,$iPosY" .
        "&highlight=$iPosX,$iPosY,$iPosWidth,$iPosHeight";
-     header( "Location: $sDJVU" ); // Redirect
+     header( "Location: $sURL" ); // Redirect
    }
  }
-// http://kanji.klf.uw.edu.pl/djvus/Batch01v3seg/00433083.djvu?djvuopts&page=1&zoom=width&showposition=0.519,0.300&highlight=155,1800,1523,600
+
 ?>
 <html>
 <head>
@@ -92,7 +94,7 @@ $iOrigPosHeight = $iPosHeight;
 $aSize = getimagesize($sImage);
 $iImageWidth = $aSize[0];
 
-// The image can be quit bg, so scale them down first
+// The images can be quite big, so scale them down first
 $fScalingFactor = ($sSize == 'small') ? 3.5 : 1;
 $iNewImageWidth = $iImageWidth/$fScalingFactor;
 $iPosX /= $fScalingFactor;
@@ -100,8 +102,8 @@ $iPosY /= $fScalingFactor;
 $iPosWidth /= $fScalingFactor;
 $iPosHeight /= $fScalingFactor;
 
-// Dit hangt samen met top en left in the style sheet
-// (let op dat de margin boven en links dus 0px is).
+// This is correlated to top and left in the style sheet
+// (make sure that left and top margins are 0px).
 $iPosX += 40;
 $iPosY += 40;
 
@@ -113,7 +115,7 @@ print "<script type=\"text/javascript\">\n" .
 "</script>\n" .
 "<title>$sImage</title>\n";
 
-// NOTE that this factor is the scaling factor, but the other way around...
+// NOTE that this factor is the scaling factor, but the other way around
 $iBorderFactor = ($sSize == 'big') ? 3.5 : 1;
 $iCssBorderWidth = $iBorderFactor * 2;
 print "<style>" .
@@ -155,7 +157,7 @@ $sLink = "./displayImage.php?sImage=" . rawurlencode($sImage) .
 </div>
 
 <?php
-// We only really print the box if it matters...
+// We only really print the box if it matters.
 if( isset($iOrigPosX) && ($iOrigPosX > 0) &&
     isset($iOrigPosY) && ($iOrigPosY > 0) ) {
   print "<div id=wordBox class=wordBox".

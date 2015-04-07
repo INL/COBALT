@@ -23,7 +23,7 @@ sub new {
 
 sub initDatabase {
   my ($self, $sDatabase) = @_;
-#  die  "Moet hier niet komen";
+
   $self->{dbh} =
     DBI->connect("dbi:mysql:$sDatabase:impactdb:3306", 'impact', 'impact',
 		 {RaiseError => 1} );
@@ -79,7 +79,7 @@ sub putLocTokensInDb {
       $sInsertTokAttValues .= "$sComma($self->{iDocumentId}, $arToken->[0], " .
 	"$arToken->[1], $iAnalyzedWordFormId, 0)";
       # NOTE that we also make this in case there actually is no word form
-      # group. Well....
+      # group. 
       # ALSO NOTE that we use the comma to see if we already have this one
       # (we only have to insert it once for a group).
       $sInsertWordGrValues .= "$sComma($iWordFormGroupId, " .
@@ -163,7 +163,6 @@ sub getWordFormId {
 
   return unless( exists($self->{dbh}) );
 
-  # For some or another reason this in necessary..?!?
   $sWordform = encode_utf8($sWordform);
 
   # First insert it

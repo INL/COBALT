@@ -35,7 +35,7 @@ function alignTokens($iDocId, $sLine, $sNewToken, $fhFile,
   printAlignmentOutcome($fhFile, $sNormalizedToken, $sNewToken, $sS_Align,
 			$sT_Align);
 
-  ////
+
   // Align the stripped unnormalized one with the new token
   list($sS_Align_unnormalized, $sT_Align_unnormalized) =
     stringAlign($sStrippedUnnormalizedToken, $sNewToken);
@@ -43,7 +43,7 @@ function alignTokens($iDocId, $sLine, $sNewToken, $fhFile,
   printAlignmentOutcome($fhFile, $sStrippedUnnormalizedToken, $sNewToken,
 			$sS_Align_unnormalized, $sT_Align_unnormalized);
 
-  ////
+  
 
   // Make a new unnormalized token
   if( ! $fhFile )
@@ -87,7 +87,7 @@ function lineUp($iDocId, $sS_Align, $sT_Align, $sOrigNorm_Align,
       "<br>\n";
 
   // Chop off newline if 5th column was the last
-  // This makes printing easier below...
+  // This makes printing easier below.
   // NOTE that the 5th column is required to be present!
   $aLine[4] = preg_replace("/[\r\n]+$/", '', $aLine[4]);
 
@@ -107,7 +107,7 @@ function lineUp($iDocId, $sS_Align, $sT_Align, $sOrigNorm_Align,
 
   // We do this so we can work with the indices of characters in strings.
   // Curly braces ($sS{2} e.g.) don't work when the character in question is
-  // an utf-8 character... ;-(
+  // an utf-8 character.
   $aS_Align = strToUtf8Array($sS_Align);
   $aT_Align = strToUtf8Array($sT_Align);
   $aUnnormalizedToken = strToUtf8Array($sUnnormalizedToken);
@@ -116,9 +116,8 @@ function lineUp($iDocId, $sS_Align, $sT_Align, $sOrigNorm_Align,
   $iNewOnset = $iOrigOnset;
   $iOffsetChange = 0;
   $iSkippedIndex = 0; // Index of the aSkipped array
-  $iLengthAligned = count($aS_Align); /// strlen($sS_Align);
+  $iLengthAligned = count($aS_Align); 
   $sNewNormalized = '';
-  //$iUnnormailzedIndex = 0;
   $iSkippedLength = 0;
   for($i=0; $i < $iLengthAligned; $i++) {
     // Check of there was something skipped at this position
@@ -127,7 +126,7 @@ function lineUp($iDocId, $sS_Align, $sT_Align, $sOrigNorm_Align,
       $iLength =
 	($aSkipped[$iSkippedIndex][1] -$aSkipped[$iSkippedIndex][0]) + 1;
       $sNewUnnormalized .= // Insert the tag in the unnormalized token
-	///substr($sUnnormalizedToken, $aSkipped[$iSkippedIndex][0], $iLength);
+
 	implode(array_slice($aUnnormalizedToken, $aSkipped[$iSkippedIndex][0],
 			    $iLength));
       $iSkippedOnset += $iLength;
@@ -138,7 +137,7 @@ function lineUp($iDocId, $sS_Align, $sT_Align, $sOrigNorm_Align,
 
     if( ($aT_Align[$i] == ' ') || ($aT_Align[$i] == '|') ) { // New token
       // No strlen because of utf8
-      /// $iNewOffset = $iNewOnset + strlen($sNewNormalized) + $iSkippedLength;
+
       $iNewOffset = $iNewOnset + count(strToUtf8Array($sNewNormalized))
 	+ $iSkippedLength;
 
@@ -167,7 +166,7 @@ function lineUp($iDocId, $sS_Align, $sT_Align, $sOrigNorm_Align,
       else
 	$sNewLine .= "\n";
 
-      ///printLog("New line: $sNewLine");
+
       if( $fhFile )
 	fwrite($fhFile, $sNewLine);
       else
@@ -191,11 +190,7 @@ function lineUp($iDocId, $sS_Align, $sT_Align, $sOrigNorm_Align,
     else {
       if( $aS_Align[$i] == "\t") {
 	$iOffsetChange++;
-	////
-	////if( strtoupper_utf8($aS_Align_unnormalized[$i]) ==
-	////    $aS_Align_unnormalized[$i])
-	////  $sNewUnnormalized .= strtoupper_utf8($aT_Align[$i]);
-	//// else ////
+
 	$sNewUnnormalized .= $aT_Align[$i];
 	$sNewNormalized .= $aT_Align[$i];
 	// >> NOTE that we DON'T do $iSkippedOnset++ here <<
@@ -205,19 +200,12 @@ function lineUp($iDocId, $sS_Align, $sT_Align, $sOrigNorm_Align,
 	  $iOffsetChange--;
 	}
 	else {
-	  ////
-	  ////if( strtoupper_utf8($aS_Align_unnormalized[$i]) ==
-	  ////   $aS_Align_unnormalized[$i]) {
-	  ////  print "strtoupper_utf8(" . $aT_Align[$i] . ") = " .
-	  ////    mb_strtoupper($aT_Align[$i], "UTF-8") . "<br>\n";
-	  ////  $sNewUnnormalized .= "|" .strtoupper_utf8($aT_Align[$i]) ."|";
-	  ////}
-	  ////else ////
+	
 	  $sNewUnnormalized .= $aT_Align[$i];
 	  $sNewNormalized .= $aT_Align[$i];
 	}
 	$iSkippedOnset++;
-	//// $iUnnormailzedIndex++;
+	
       }
     }
   }
@@ -228,7 +216,7 @@ function lineUp($iDocId, $sS_Align, $sT_Align, $sOrigNorm_Align,
     $iLength =
       ($aSkipped[$iSkippedIndex][1] -$aSkipped[$iSkippedIndex][0]) + 1;
     $sNewUnnormalized .= // Insert the tag in the unnormalized token
-      ///substr($sUnnormalizedToken, $aSkipped[$iSkippedIndex][0], $iLength);
+      
       implode(array_slice($aUnnormalizedToken, $aSkipped[$iSkippedIndex][0],
 			  $iLength));
     // >> NOTE that the we DON'T update $iSkippedLength here, because tags
@@ -236,9 +224,9 @@ function lineUp($iDocId, $sS_Align, $sT_Align, $sOrigNorm_Align,
   }
 
   // Any trailing punctuation.
-  // NOTE: The punctuation only occurs after any trailing tags...
+  // NOTE: The punctuation only occurs after any trailing tags.
   // If the punctuation would have been before that tag, the tag shouldn't have
-  // ended up here at all!!!
+  // ended up here at all!
   $sTrailing = '';
   for($i=strlen($sOrigNorm_Align)-1; $i > 0; $i--) {
     if( $sOrigNorm_Align{$i} == "\t" ) {
@@ -250,8 +238,8 @@ function lineUp($iDocId, $sS_Align, $sT_Align, $sOrigNorm_Align,
   $sNewUnnormalized .= $sTrailing;
 
   if( strlen($sNewUnnormalized) ) {
-    // NOTE we don't use strlen here, because of utf8 difficulties... ;-(
-    // So we convert to an array every time (it might change on the way...).
+    // NOTE we don't use strlen here, because of utf8 difficulties.
+    // So we convert to an array every time (it might change on the way).
     $iNewOffset = $iNewOnset + count(strToUtf8Array($sNewNormalized))
       + $iSkippedLength;
 
@@ -280,7 +268,7 @@ function lineUp($iDocId, $sS_Align, $sT_Align, $sOrigNorm_Align,
     else
       $sNewLine .= "\n";
 
-    ///printLog("New line: $sNewLine");
+ 
     if( $fhFile )
       fwrite($fhFile, $sNewLine );
     else
@@ -316,7 +304,7 @@ function printAlignmentOutcome($fhFile, $sS, $sT, $sS_Align, $sT_Align) {
 
 function printRow($s) {
   print "<tr>";
-  //for($i = 0; $i < strlen($s); $i++) {
+
   preg_match_all("/(.)/u", $s, $aMatches, PREG_SET_ORDER);
   foreach ($aMatches as $val) {
     $sBackground = "#E6E6E6";

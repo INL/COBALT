@@ -8,7 +8,7 @@ function arrangeKeydown() {
 
 // This functions is used to unbind all the bindings of keyDown(). This is
 // handy when somebody starts typing in an input box (otherwise if
-// someone e.g. hits an arrow, suddenly the next word form will be shown...).
+// someone e.g. hits an arrow, suddenly the next word form will be shown).
 function keyDown_default (e) {
   var keyCode;
   // If we return false the key which was pressed is disabled for further use
@@ -21,7 +21,6 @@ function keyDown_default (e) {
 
   // If Shift-Ctrl-Alt was pressed, we neglect other keys
   if( (iHeldDownKey != 16 ) && (iHeldDownKey != iCtrlKey)
-      // && (iHeldDownKey != 18)
       ) {
     iHeldDownKey = keyCode;
     notifyHeldDownKey();
@@ -157,7 +156,7 @@ function upArrowTokenAttSuggMenu() {
     // Highlight the last row
     var oLastRow = document.getElementById('lemmaSuggestionRow_' +
 					   iMaxLemmaSuggestionRow);
-    if( oLastRow) // If there is a last row...
+    if( oLastRow) // If there is a last row.
       oLastRow.className += '_';
     iSelectedLemmaSuggestionRow = iMaxLemmaSuggestionRow;
   }
@@ -187,7 +186,6 @@ function keyDown_wordToAttest (e) {
   // Set the global variable
   // This is used for all kind of click events
   if( (iHeldDownKey != 16 ) && (iHeldDownKey != iCtrlKey)
-      //&& (iHeldDownKey != 18)
       ) {
     iHeldDownKey = keyCode;
     notifyHeldDownKey();

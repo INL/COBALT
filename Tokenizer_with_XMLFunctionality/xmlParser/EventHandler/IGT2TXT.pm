@@ -8,7 +8,7 @@ use impactok::impactok;
 
 # NOTE that we never 'die' as that will print to stderr which the
 # Lexicon Tool's php scripts won't print.
-# In stead, we use impactok::impactok::endProgram()
+# Instead, we use impactok::impactok::endProgram()
 
 # Constructor
 sub new {
@@ -22,7 +22,6 @@ sub new {
   $self->{sCurrentRelevantBlock} = undef;
   $self->{bInIgnoreTag} = undef;
 
-  # AD HOC
   $self->{sLanguage} = 'ned';
 
   $self->{oImpactok} = impactok::impactok->new(sLanguage =>$self->{sLanguage});

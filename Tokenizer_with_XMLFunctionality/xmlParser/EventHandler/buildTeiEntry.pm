@@ -109,7 +109,6 @@ sub atTag {
     $self->{bInOrthTag} = 1;
   }
   elsif($hrTag->{sTagName} eq '/orth') {
-    ### $self->{hrCurrentOrthTag} = undef;
     $self->{bInOrthTag} = undef;
   }
   elsif($hrTag->{sTagName} eq 'gramGrp') {
@@ -272,8 +271,6 @@ sub atText {
       if($self->{bInCitTag} || $self->{bInForm_wordForm} ) {
 
 	if( $self->{bInCitTag} ) {
-	  # For Slovene e.g. the tag is simply <bibl>myFile.xml</bibl>
-	  # rather then with nested <title>/<author>/etc. tags.
 	  my $hrLastCit = $self->{hrCurrentFormTag}->{arCits}->[$#{$self->{hrCurrentFormTag}->{arCits}}];
 	  $hrLastCit->{arBibl}->[$#{$hrLastCit->{arBibl}}]->{sText} =
 	    $hrText->{sText};
@@ -302,7 +299,7 @@ sub handleFormTag {
     if( $self->{bInForm_wordForm} ) { # The tag is nested inside a form tag
       if( $self->{bInForm_historical} ) { # Nested in yet another form tag
 	my %hTag = %$hrTag;
-	# Get the last element of the forms of the forms of the entry (nice...)
+	# Get the last element of the forms of the forms of the entry
 	my $arEntryForms = $self->{hrEntry}->{arForms};
 	my $hrLastEntryForm = $arEntryForms->[$#{$arEntryForms}];
 	my $hrLastWordFormForm =
@@ -346,64 +343,6 @@ sub handleOrthTag {
   $self->{hrCurrentFormTag}->{hrOrthTag} = {hrTag => \%hTag};
 }
 
-# sub handleOrthTag {
-#   my ($self, $hrTag) = @_;
-
-#   if( $self->{bInEntry} ) {
-#     if( $self->{bInForm_wordForm} ) { # The tag is nested inside a form tag
-#       if( $self->{bInForm_historical} ) { # Nested in yet another form tag
-# 	if( $self->{bInForm_cited} ) { # Yet another
-# 	  my %hTag = %$hrTag;
-# 	  # Get the last element
-# 	  my $arEntryForms = $self->{hrEntry}->{arForms};
-# 	  my $hrLastEntryForm = $arEntryForms->[$#{$arEntryForms}];
-# 	  my $hrLastWordFormForm =
-# 	    $hrLastEntryForm->{arForms}->[$#{$hrLastEntryForm->{arForms}}];
-# 	  my $hrLastHistoricalForm =
-# 	    $hrLastWordFormForm->{arForms}->[$#{$hrLastWordFormForm->{arForms}}];
-# 	  my $hrLastCitedForm =
-# 	    $hrLastHistoricalForm->{arForms}->[$#{$hrLastHistoricalForm->{arForms}}];
-# 	  $hrLastCitedForm->{hrOrthTag} = {hrTag => \%hTag};
-# 	  # Keep a reference to the hash, so we know where to put the text
-# 	  # when we see it
-# 	  $self->{hrCurrentOrthTag} = $hrLastCitedForm->{hrOrthTag};
-# 	}
-# 	else { # In historical
-# 	  my %hTag = %$hrTag;
-# 	  # Get the last element
-# 	  my $arEntryForms = $self->{hrEntry}->{arForms};
-# 	  my $hrLastEntryForm = $arEntryForms->[$#{$arEntryForms}];
-# 	  my $hrLastWordFormForm =
-# 	    $hrLastEntryForm->{arForms}->[$#{$hrLastEntryForm->{arForms}}];
-# 	  my $hrLastHistoricalForm =
-# 	    $hrLastWordFormForm->{arForms}->[$#{$hrLastWordFormForm->{arForms}}];
-# 	  $hrLastHistoricalForm->{hrOrthTag} = {hrTag => \%hTag};
-# 	  # Keep a reference to the hash, so we know where to put the text
-# 	  # when we see it
-# 	  $self->{hrCurrentOrthTag} = $hrLastHistoricalForm->{hrOrthTag};
-# 	}
-#       }
-#       else { # At word form level
-# 	my %hTag = %$hrTag;
-# 	# Get the last element from the forms in the entry
-# 	my $arEntryForms = $self->{hrEntry}->{arForms};
-# 	my $arLastEntryForm = $arEntryForms->[$#{$arEntryForms}];
-# 	$arLastEntryForm->{hrOrthTag} = {hrTag => \%hTag};
-# 	# Keep a reference to the hash, so we know where to put the text
-# 	# when we see it
-# 	$self->{hrCurrentOrthTag} = $arLastEntryForm->{hrOrthTag};
-#       }
-#     }
-#     else { # A non-nested orth tag. So it is at entry level
-#       die "ERROR: stray 'form' tag in '$self->{sInputFileName}', " .
-# 	"line $self->{iLineNr}.\n";
-#     }
-#   }
-#   else {
-#     die "ERROR: stray 'form' tag in '$self->{sInputFileName}', " .
-#       "line $self->{iLineNr}.\n";
-#   }
-# }
 
 # This is an initialisation function
 sub atStartOfFile {

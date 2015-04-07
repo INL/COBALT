@@ -62,7 +62,7 @@ endProgram("ERROR while handling file '$sFileName': " . $@) if $@;
 
 # When it is necessary, we call some extra functions having to
 # do with impactok.
-# We assume that we are in the right folder for the impactok files...
+# We assume that we are in the right folder for the impactok files.
 if( exists($oXmlParser->{oEventHandler}->{oImpactok}) ) {
   $oXmlParser->{oEventHandler}->{oImpactok}->setAbbreviations(".");
   $oXmlParser->{oEventHandler}->{oImpactok}->setApostrophes(".");
@@ -98,7 +98,7 @@ sub validateXml {
   my ($sFileName) = @_;
 
   # This is done with open because somehow backticks wouldn't allow
-  # redirecting stderr...
+  # redirecting stderr.
   open(FH_EXEC, "xmllint --noout $sFileName 2>&1 |")
     or endProgram("ERROR while handling file '$sFileName': " .
 		  "Couldn't run /usr/bin/xmllint: $!\n");

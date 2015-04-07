@@ -12,7 +12,7 @@ use impactok::impactok;
 
 # NOTE that we never 'die' as that will print to stderr which the
 # Lexicon Tool's php scripts won't print.
-# In stead, we use impactok::impactok::endProgram()
+# Instead, we use impactok::impactok::endProgram()
 
 sub initDatabase {
   my ($self, $sDatabase) = @_;
@@ -53,7 +53,6 @@ sub new {
   $self->{yMax}=0;
   $self->{yMin}=0;
   $self->{tagToExtractTextFrom}  = "TextRegion";
-  #$self->{}
   return $self;
 }
 
@@ -72,11 +71,10 @@ sub atTag {
   if ($hrTag->{sTagName} eq "Page") {
     $self->{imageHeight}=$hrTag->{hrAttributes}->{imageHeight};
     $self->{imageWidth}=$hrTag->{hrAttributes}->{imageWidth}; 
-    # $self->{bInUnicodeTag} = 1; TK 2011-09-12 <- Hoezo..?!?
   }
   elsif( $hrTag->{sTagName} eq "Unicode") {
     $self->{bInUnicodeTag} = 1;
-    $self->{inTagToExtractTextFrom} = "Unicode"; # 2011-09-12: <-- TK toegevoegd
+    $self->{inTagToExtractTextFrom} = "Unicode"; 
   }
   elsif( $hrTag->{sTagName} eq "/Unicode") {
     if ($self->{inTagToExtractTextFrom}) {
@@ -141,38 +139,22 @@ sub emptyTextBlock {
   $self->{hrText}->{iEndPos} = undef;
   # We empty the coordinates at the end of a <IGT:TextBlock> tag
   $self->{hrText}->{arCoordinates} = [];
-##   unless(exists($self->{hrText}->{arCoordinates}));
+
 }
 
 # Additional sub routines #####################################################
 
 
-# hang de bounding box van de coordinaten aan de textregion...
+# Attach the bounding box of the coordinates to the text region...
 sub attachCoordinates {
   my $self = shift;
 
   if ($self->{iPointNr} > 0 ) {
-    ### TK: 2011-11-09
-    ### Even helemaal uitgezet voor het Nederlandse materiaal
-    ### Sorry, niet zo netjes...
 
-    # if( exists($self->{imageHeight}) && $self->{imageHeight}) {
-    #   # Oppassen: in de djvu images zit het punt (0,0) links ONDER.
-    #   # aangezien de imageHeight niet in de database komt, moeten we dat hier
-    #   # flippen
-
-    #   my $H = $self->{imageHeight};
-    #   $self->{hrText}->{arCoordinates} = 
-    # 	[$self->{xMin}, $H - $self->{yMax}, $self->{yMax} - $self->{yMin},
-    # 	 $self->{xMax} - $self->{xMin}];
-    #   ### warn  join(", ", @{$self->{hrText}->{arCoordinates}});
-    # }
-    # else { # 2011-11-04: Maar dat is dan weer niet altijd zo, dus we doen het
-      # ook zo...
     $self->{hrText}->{arCoordinates} =
       [$self->{xMin}, $self->{yMin}, $self->{yMax} - $self->{yMin},
        $self->{xMax} - $self->{xMin}];
-    #    }
+
   }
 }
 
@@ -203,8 +185,6 @@ sub handleCoordinate {
 
 sub emptyCoordinates {
   my ($self) = @_;
-
-  # Gooi leeg.
 }
 
 # $hrState is a hash that you can use for whatever you want and that will keep

@@ -2,8 +2,7 @@
 
 use strict;
 
-my $sDbnlDir = "/mnt/Archief/Projecten/Impact/NELexicon/historisch/dbnl/" .
-  "alleteksten/5_uitTool_metLOCLemmata_ronde2";
+my $sDbnlDir = "/tmp/dbnl";
 my $sOutputDir = "./outputDBNL";
 
 my @aSubDirs = ("1755-1815", "1815-1900");

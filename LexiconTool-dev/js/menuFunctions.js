@@ -7,7 +7,7 @@ function makePosColEditable(iWordFormId, sPosCol, iRowNr) {
 
   var sInnerHTML = oPosCol.innerHTML;
   // Here we set the global variable
-  // We replace the non-brakable spaces because they can be converted by the
+  // We replace the non-breakable spaces because they can be converted by the
   // browser to \xA0 characters (see below)
   if( sInnerHTML && sInnerHTML.length) {
     sInnerHTML = sInnerHTML.replace('&nbsp;', ' ');
@@ -30,7 +30,6 @@ function makePosColEditable(iWordFormId, sPosCol, iRowNr) {
     " if(iLastKeyPressed == 13) " +
     "  hideMenus(); " +
     " else if( (iHeldDownKey != 16) && (iHeldDownKey != iCtrlKey) && " + 
-    //"(iHeldDownKey != 18) && // ALT weg
     "(iLastKeyPressed != 40) && " + // Up arrow
     "(iLastKeyPressed != 38)) {" +  // Down arrow
     " iSelectedLemmaSuggestionRow = -1; iMaxLemmaSuggestionRow = -1; " +
@@ -333,7 +332,7 @@ function sortSentences(sNewSortBy, sNewSortMode) {
   // Set the global variables
   sSortSentencesBy = sNewSortBy;
   sSortSentencesMode = sNewSortMode;
-  //  aSelected = []; // No selection anymore...
+  //  aSelected = []; // No selection anymore.
 
   var aIdAndWf =
     document.getElementById('wordRow_' + iSelectedRow).title.split("\t");
@@ -351,25 +350,6 @@ function makeMatchedPartEditable(iSentenceNr, iDocumentId, iWordFormId, iOnset,
   var oMatchedPartCol = document.getElementById('matchedPartCol_' + iDocumentId
 						+ '_' + iOnset);
 
-  /*
-    2011-10-04: Actually, we do this later one, as the user might de-select some
-    sentences while the word form is editable.
-  var sSelectedSentences = '';
-  var cPipe = '';
-  if( aSelected.length ) {
-    for( var i = 0; i < aSelected.length; i++ ) {
-      // aSelected is an array of arrays. So aSelected[i] is an array:
-      // 0: sentence number
-      // 1: the title, which is documentId,startPos,endPos
-      if(aSelected[i]) {
-	sSelectedSentences += cPipe + aSelected[i][1];
-	cPipe = '|';
-      }
-    }
-  }
-  else // No sentences selected, just the current one
-    sSelectedSentences = iDocumentId + "," + iOnset + "," + iOffset;
-  */
 
   // These two could be identical. By coincidence of course, but also because
   // when bNormalizeToken is on in the global settings (in php/global.php)
@@ -389,10 +369,7 @@ function makeMatchedPartEditable(iSentenceNr, iDocumentId, iWordFormId, iOnset,
     ", " + iOffset + ", " + iWordFormId + ", '" +
     sEscaped.replace(/\'/g, "\\'") + "', '" + 
     sEscapedWfInText.replace(/\'/g, "\\'") +
-    //"', this.value, '" +
     "', this.value" +
-    // sSelectedSentences +
-    //"');\"" +
     ");\"" +
     ">" +
     "</div>";
@@ -401,10 +378,9 @@ function makeMatchedPartEditable(iSentenceNr, iDocumentId, iWordFormId, iOnset,
 function changeWordForm(iSentenceNr, iDocumentId, iOnset, iOffset,
 			iOldWordFormId, sOldWordForm, sOldWordFormInText,
 			sNewWordForm
-			// , sSelectedSentences
 			) {
   // Get the *currently* selected sentences (this used to be done higher up
-  // but now we get them them 'live'...).
+  // but now we get them them 'live').
   var sSelectedSentences = '';
   var cPipe = '';
   if( aSelected.length ) {
@@ -426,8 +402,6 @@ function changeWordForm(iSentenceNr, iDocumentId, iOnset, iOffset,
   // typed them in, neglect them.
   sNewWordForm = sNewWordForm.replace(/^[\s\|]+/, '');
   sNewWordForm = sNewWordForm.replace(/[\s\|]+$/, '');
-  
-  // alert("'" + sOldWordForm + "' <-> '" + sNewWordForm + "'");
 
   // If nothing actually changed, rebuild the original column.
   if( sOldWordForm == sNewWordForm) {
@@ -629,7 +603,7 @@ function deleteLemma_(iLemmaId, sLemmaString) {
       else {
 	oLemmaEditDiv.innerHTML = "<div class=lemmaDeleted>Deleted lemma '" +
 	  sLemmaString + "'</div>";
-	// Update the page (which will be empty...)
+	// Update the page (which will be empty)
 	fillWordsToAttest(-1, -1, -1);
 	// Clear the sentences
 	clearSentences();

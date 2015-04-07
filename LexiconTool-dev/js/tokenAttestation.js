@@ -74,7 +74,7 @@ function updateTokenAttsForCorpus(iWordFormId, iRowNr) {
 
 function fillTokenAttestationDivs(iRowNr, sResponseText) {
   // We are doing this extra check because splitting an empty string results
-  // in an array with length 1 in Javascript...
+  // in an array with length 1 in Javascript.
   if( sResponseText.length) {
     var aTokenAtts = sResponseText.split("\t");
 
@@ -118,13 +118,7 @@ function showTokenAttSuggestions(oWordFormBox, iDocumentId, iSentenceNr,
 			     oWordFormBox.offsetHeight -
 			     document.getElementById('sentences').scrollTop);
       oSuggestions.style.top = iSuggestionsTop + 'px';
-      /* alert("Bottom: (" + (aCoordinates[1] + oWordFormBox.offsetHeight -
-       document.getElementById('sentences').scrollTop) + " + " +
-	    oSuggestions.offsetHeight + ") = " +
-	    (aCoordinates[1] + oWordFormBox.offsetHeight -
-       document.getElementById('sentences').scrollTop + oSuggestions.offsetHeight) +
-	    " <-> window height: " + document.body.clientHeight);
-      */
+
       if( (iSuggestionsTop + oSuggestions.offsetHeight) >
 	  document.body.clientHeight) {
 	oSuggestions.style.top = (iSuggestionsTop - oWordFormBox.offsetHeight -
@@ -172,7 +166,7 @@ function tokenAttest(iDocumentId, iSentenceNr, iWordFormId,
 			 
 			 
   // If some rows were selected we attest for all these rows including the one
-  // that was clicked in (which isn't necessarily selected... try it).
+  // that was clicked in (which isn't necessarily selected).
   // NOTE that this might result in a double entry in the sSelecteds list, in
   // case it *was* selected.
   var sSelecteds = iDocumentId + "," + iStartPos + "," + iEndPos;
@@ -188,7 +182,7 @@ function tokenAttest(iDocumentId, iSentenceNr, iWordFormId,
   }
 
   // NOTE that we append a "unique string" at the end, to make sure that e.g.
-  // IE will actually carry out AJAX calls more than once as well...
+  // IE will actually carry out AJAX calls more than once as well.
   var sPage = "./php/tokenAttest.php";
   var sParams = "sDatabase=" + sDatabase + "&iUserId=" +
     iUserId + "&iWordFormId=" + iWordFormId + "&iAnalyzedWordFormId=" +
@@ -207,9 +201,9 @@ function tokenAttest(iDocumentId, iSentenceNr, iWordFormId,
 	  var aIdAndWf = oWordRow.title.split("\t");
 	  
 		// Update the sentences, bottom part of the screen 
-		// old way: update whole view, which is often slow (and makes modified analyses disappear in some sorting modes)
-		//fillSentences(iWordFormId, aIdAndWf[1], false);		
-		// new way: update only the selection and don't change sorting (as the update is per row)
+		// OLD WAY: update whole view, which is often slow (and makes modified analyses disappear in some sorting modes)
+		//fillSentences(iWordFormId, aIdAndWf[1], false);
+		// NEW WAY: update only the selection and don't change sorting (as the update is per row)
 		updateAnalysesOfSelectedRowsOnScreen(aSelected, iSentenceNr);
 		
 		// if we are not de-attesting, check the checkboxes as well
@@ -356,9 +350,9 @@ function toggleTokenAttestation(oTokenVerificationBox, iDocumentId,
 		
 		
 		// Update the sentences part of the screen 
-		// old way: update whole view, which is often slow (and makes modified analyses disappear in some sorting modes)
+		// OLD WAY: update whole view, which is often slow (and makes modified analyses disappear in some sorting modes)
 		////fillSentences(iSelectedWordId, aIdAndWf[1], false);
-		// new way: update only the checkboxes (fast!)
+		// NEW WAY: update only the checkboxes (fast!)
 		updateCheckBoxes(aSelected, sNewClassName);
 		
 		
@@ -389,7 +383,7 @@ function toggleTokenAttestation(oTokenVerificationBox, iDocumentId,
       }
     }
     // NOTE that we append a "unique string" at the end, to make sure that e.g.
-    // IE will actually carry out AJAX calls more than once as well...
+    // IE will actually carry out AJAX calls more than once as well.
     xmlHttp.open("POST", sPage, true);
     xmlHttp.setRequestHeader("Content-type",
 			     "application/x-www-form-urlencoded");
@@ -460,7 +454,7 @@ function tokenAttestSelected(iWordFormId, iAnalyzedWordFormId, iRowNr) {
 	// 0: sentence number
 	// 1: the title, which is documentId,startPos,endPos
 	
-	// If an element is deleted it is actually set to undefined...
+	// If an element is deleted it is actually set to undefined.
 	if(aSelected[i]) {
 	  sTokenAttestations +=
 	    cSeparator + iWordFormId + ',' + aSelected[i][1] + ',' +
@@ -503,7 +497,7 @@ function tokenAttestSelected(iWordFormId, iAnalyzedWordFormId, iRowNr) {
 
     xmlHttp.onreadystatechange=function() {
       if(xmlHttp.readyState == 4) {
-		// Check if the response is as expected...
+		// Check if the response is as expected.
 		if(xmlHttp.responseText.length) {
 		  oDiv.innerHTML = xmlHttp.responseText;
 		}
@@ -555,7 +549,7 @@ function updateAnalysesOfSelectedRows(iWordFormId, iAnalyzedWordFormId, iRowNr){
     setTimeout("updateAnalysesOfSelectedRows(" + iWordFormId + ", " +
 	       iAnalyzedWordFormId + " , " + iRowNr + ")", 10);
   else {
-		// tell the user (s)he has to wait (make progressbar visible(
+		// tell the user (s)he has to wait (make progressbar visible)
 		var oProgressBar = document.getElementById('progressBar');
 		oProgressBar.innerHTML = "Processing...&nbsp;&nbsp;&nbsp;" +
 		"<img src='./img/circle-ball-dark-antialiased.gif'>";
@@ -618,7 +612,7 @@ function _updateAnalysesOfSelectedRows(iWordFormId, iAnalyzedWordFormId, iRowNr,
 	// 0: sentence number
 	// 1: the title, which is documentId,startPos,endPos
 	
-	// If an element is deleted it is actually set to undefined...
+	// If an element is deleted it is actually set to undefined.
 	if(aSmallSelected[i]) {
 	  sTokenAttestations +=
 	    cSeparator + iWordFormId + ',' + aSmallSelected[i][1] + ',' +
@@ -628,8 +622,7 @@ function _updateAnalysesOfSelectedRows(iWordFormId, iAnalyzedWordFormId, iRowNr,
       }
     }
 
-    /// Misschien is het ook hier niet helemaal lekker omdat dit een nogal
-    /// grote POST variabele kan worden
+    // This might become a huge POST variable.
     
     // So, now we have all the right data and we can send it to PHP
     var sPage = "./php/saveTokenAttestations2.php";
@@ -759,7 +752,7 @@ function _updateAnalysesOfSelectedRowsOnScreen(aSelection, iSentenceNr, iProgres
 		&& (aSelectedClone.length == 0 || !isPartOfSelection(iSentenceNr) ) )
 	{
 		var oSentence = document.getElementById('sentence_' + iSentenceNr);		
-		if (oSentence != null) // somehow this happens sometimes?!
+		if (oSentence != null) // somehow this happens sometimes
 			aSelectedClone.push( [iSentenceNr, oSentence.title] );
 	}
 	
@@ -800,7 +793,7 @@ function _updateAnalysesOfSelectedRowsOnScreen(aSelection, iSentenceNr, iProgres
 	xmlHttp.onreadystatechange=function() {
 	
 		if(xmlHttp.readyState == 4) {
-			// Check if the response is as expected...
+			// Check if the response is as expected.
 			if(xmlHttp.responseText.length) {
 			
 				// First put the response into an associative array.

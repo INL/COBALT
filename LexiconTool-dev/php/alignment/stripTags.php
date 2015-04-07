@@ -25,7 +25,7 @@ function stripTags($sStr) {
   $sStripped = '';
   $sTagText = '';
   $bInTag = $bInDoubleQuote = $bInSingleQuote = FALSE;
-  ///  for($i = 0; $i < strlen($sStr); $i++ ) {
+
   for($i = 0; $i < count($aStr); $i++ ) {
     if( $aStr[$i] == '<') {
       if (! $bInTag) {
@@ -33,7 +33,7 @@ function stripTags($sStr) {
 	$iSkipOnset = $i;
       }
       else // If we thought we were already in a tag, then actually the tag
-	// should start here...
+	// should start here.
 	if( ! $bInSingleQuote && ! $bInDoubleQuote) {
 	  $sStripped .= $sTagText;
 	  $sTagText = '';

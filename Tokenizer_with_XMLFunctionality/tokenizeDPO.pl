@@ -2,7 +2,7 @@
 
 use strict;
 
-my $sDpoDir = "/mnt/Archief/Projecten/Impact/LexiconTool/uploadedDocuments/zipExtractDir/graalversie_verrijkt_met_lemmata_3";
+my $sDpoDir = "/tmp/DPOfile";
 my $sOutputDir = "./outputDPO";
 
 opendir(my $dhDir, $sDpoDir) || die "can't opendir $sDpoDir: $!";

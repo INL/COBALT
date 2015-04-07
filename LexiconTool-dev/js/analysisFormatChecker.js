@@ -2,7 +2,7 @@
 // This may differ from language to language, project to project, etc. which is
 // why it is in a separate file.
 //
-// If you set bCheckAnalysisFormatValidity to 'true' in php/globals.php) then
+// If you set bCheckAnalysisFormatValidity to 'true' (in php/globals.php) then
 // the tool assumes this file (called analysisFormatChecker,js) exists and that
 // a function called analysisFormatIsValid() exists that has a string as input
 // and returns a boolean.

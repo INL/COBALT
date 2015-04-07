@@ -4,8 +4,8 @@ use strict;
 
 use DBI;
 
-# Deze is gemaakt om de milestones in het DBNL materiaal te interpreteren en
-# om te zetten naar DBNL-compliant TEI XML.
+# This script was built to be able to interpret the milestones in the DBNL material 
+# and to convert that into DBNL-compliant TEI XML.
 
 # Constructor
 sub new {
@@ -25,8 +25,8 @@ sub new {
     die "Couldn't open $self->{sOutputDir}/scriptOutput.txt for writing: $!\n";
   select(FH_SCRIPT_OUTPUT);
   $|++; # Autoflush
-  # Dit doe ik omdat je dan het script middenin kan afbreken en dat de output
-  # dan ook nog echt in die file staat (in plaats van niks).
+  # This allows the script to send output to a file even when the script is being interrupted during execution
+  # (otherwise we would have no output at all)
   $self->{fhScriptOutput} = *FH_SCRIPT_OUTPUT;
   select(STDOUT); # Restore default
 
@@ -39,19 +39,19 @@ sub atTag {
   my ($self, $hrTag) = @_;
 
   if($hrTag->{sTagName} eq 'milestone') {
-    # Kwam voor...
+    
     $hrTag->{hrAttributes}->{unit} = "bo"
       if( $hrTag->{hrAttributes}->{unit} eq "`bo");
 
     if( ($hrTag->{hrAttributes}->{unit} ne "bo") &&
 	($hrTag->{hrAttributes}->{unit} ne "eo") ) {
-      # be en ee slaan we gewoon over...
+      # We'll skip be and ee 
       $self->printOut("ERROR in '$self->{sFileName}': " .
 		      "Wat doen we met milestone " .
 		      "$hrTag->{hrAttributes}->{unit} '$hrTag->{sTagText}'?\n")
 	unless( ($hrTag->{hrAttributes}->{unit} eq 'be') ||
 		($hrTag->{hrAttributes}->{unit} eq 'ee') );
-      # andere dan eo en bo moeten wel gewoon geechood (Jesse)
+      # Others than eo and bo must be printed
       $self->{sText} .= $hrTag->{sTagText};
     }
     else { # Print it, but without ana/corresp, and add an id
@@ -125,9 +125,7 @@ sub setFileBaseName {
     $self->{sFileBaseName} = $1;
     # Zoals +dat enzo
     $self->{sFileBaseName} =~ s/_01([\+_-]\D+)*$//;
-    ###
-    ### print "Base name: $self->{sFileBaseName}.\n";
-    ###
+
     $self->findMetadataRecord();
   }
   else {
@@ -138,9 +136,6 @@ sub setFileBaseName {
 sub atEndOfFile {
   my ($self) = @_;
 
-  ###
-  ### $DB::single = 1;
-  ###
 
   my $sComCorFile = $self->isComCorFile();
 
@@ -152,9 +147,9 @@ sub atEndOfFile {
     # getMilestoneRecord() print een error als er geen record is in db
     my $hrResultRow = $self->getMilestoneRecord($hrTag);
 
-    # Bij comcor files heeft de tag voorrang boven de database
+    # If we have comcor files, tags have priority above the database
     if( $sComCorFile ) {
-      # Als er helemaal geen ana was, dan pakken we toch de db
+      # If there was no ana, we should use the database
       if( ! exists($hrTag->{hrAttributes}->{ana}) ) {
 	if( $hrResultRow ) {
 	  $hrDates->{sDateFrom} = $hrResultRow->{dateFrom}
@@ -167,32 +162,32 @@ sub atEndOfFile {
 	    if($hrResultRow->{dateWitnessTo});
 	}
       }
-      else { # Gewone geval: alles uit de tag
+      else { # Normal case, use tags
 	# Data
 	$hrDates = getAnas($hrTag->{hrAttributes}->{ana});
       }
 
-      # Auteur
-      # Die pakken we ook eerst uit de tag, maar als die er niet is uit de db
-      # (dus het kan zijn dat de data uit de db en de auteur uit de tag of
-      # andersom).
+      # Author
+      # We read it from the tag, but if it's not there we read it from the database
+      # (so it might happen that the data comes from the tags and the author from the
+	  # database, or the other way round).
 
       if($hrResultRow->{auteurStukje}) {
-	# Eerst nog wat opschonen
+	# Do some clean up
 	$hrResultRow->{auteurStukje} =~ s/^\s+//;
 	$hrResultRow->{auteurStukje} =~ s/\,?\s+$//;
 	$sAuthors = "\n   " .
 	  " <interpGrp type=\"author.level1\"><interp value=\"$hrResultRow->{auteurStukje}\"/></interpGrp>";
 	warn $sAuthors;
       } elsif($hrResultRow->{authors}) {
-	# Eerst nog wat opschonen
+	# clean up
 	$hrResultRow->{authors} =~ s/^\s+//;
 	$hrResultRow->{authors} =~ s/\,?\s+$//;
 	$sAuthors = "\n   " .
 	  "<interpGrp type=\"author.level2\"><interp value=\"$hrResultRow->{authors}\"/></interpGrp>";
       }
       elsif(exists($hrTag->{hrAttributes}->{sAuthors})) {
-	# Eerst nog wat opschonen
+	# clean up
 	$hrTag->{hrAttributes}->{sAuthors} =~ s/^\s+//;
 	$hrTag->{hrAttributes}->{sAuthors} =~ s/\,?\s+$//;
 	$sAuthors = "\n   <interpGrp type=\"author.level2\"><interp " .
@@ -200,11 +195,11 @@ sub atEndOfFile {
       }
 
       levelDates($hrDates, 'sDateFrom', 'sDateTo');
-      # Zelfde voor dateWitness
+      # same for dateWitness
       levelDates($hrDates, 'sDateWitnessFrom', 'sDateWitnessTo');
     }
-    else { # Geen comcor file, kijk in de database
-      # Pak ook de data uit de tag
+    else { # No comcor file, look into the database
+      # Also take data from tag
       my $hrAnaDates;
       $hrAnaDates = getAnas($hrTag->{hrAttributes}->{ana})
 	if(exists($hrTag->{hrAttributes}->{ana}));
@@ -219,8 +214,8 @@ sub atEndOfFile {
 	$hrDates->{sDateWitnessTo} = $hrResultRow->{dateWitnessTo}
 	  if($hrResultRow->{dateWitnessTo});
 
-	# Als de tekst data hetzelfde zijn kunnen we de tekst getuige wel
-	# pakken uit de tag als die dat wel heeft en de database niet.
+	# If the text data is the same, we can take the text witness 
+	# from the tag if it's to be found there while it's not to be found in the database.
 	if( $hrAnaDates && $hrDates &&
 	    exists($hrDates->{sDateFrom}) && exists($hrDates->{sDateTo}) &&
 	    exists($hrAnaDates->{sDateFrom}) &&
@@ -245,8 +240,8 @@ sub atEndOfFile {
 	  }
 	}
 
-	# Als we geen dateTo/dateFrom velden in de database hadden dan pakken
-	# we die van de tag.
+	# If we have no dateTo/dateFrom fields in de database, we then take
+	# those from the tag.
 	if( (! $hrDates->{sDateFrom}) && (! $hrDates->{sDateFromTo}) &&
 	    $hrAnaDates &&
 	    ( exists($hrAnaDates->{sDateFrom}) ||
@@ -257,31 +252,31 @@ sub atEndOfFile {
 	}
 
 	levelDates($hrDates, 'sDateFrom', 'sDateTo');
-	# Zelfde voor dateWitness
+	# Same for dateWitness
 	levelDates($hrDates, 'sDateWitnessFrom', 'sDateWitnessTo');
 
-	# Auteur ook alleen als ingevuld
+	# Author, only if it was filled in
         if ($hrResultRow->{auteurStukje}) {
-        # Eerst nog wat opschonen
+        # First some clean up
         $hrResultRow->{auteurStukje} =~ s/^\s+//;
         $hrResultRow->{auteurStukje} =~ s/\,?\s+$//;
         $sAuthors = "\n   " .
           "<interpGrp type=\"authors\"><interp value=\"$hrResultRow->{auteurStukje}\"/></interpGrp>";
          warn $sAuthors;
       } elsif($hrResultRow->{authors}) {
-	  # Eerst nog wat opschonen
+	  # clean up
 	  $hrResultRow->{authors} =~ s/^\s+//;
 	  $hrResultRow->{authors} =~ s/\,?\s+$//;
 	  $sAuthors = "\n   " .
 	    "<interpGrp type=\"authors\"><interp value=\"$hrResultRow->{authors}\"/></interpGrp>";
 	}
       }
-      else { # Als er geen database rij is dan pakken we de info uit de tag
+      else { # If there is no database row, we take info from the tag
 	if( $hrAnaDates ) {
 	  %$hrDates = %$hrAnaDates; # Copy
 
 	  levelDates($hrDates, 'sDateFrom', 'sDateTo');
-	  # Zelfde voor dateWitness
+	  # Same for dateWitness
 	  levelDates($hrDates, 'sDateWitnessFrom', 'sDateWitnessTo');
 
 	}
@@ -300,7 +295,7 @@ sub atEndOfFile {
       next if( $self->dateNotSpecificEnough($hrDates, $hrTag, $sComCor));
 
       my ($sDatePrint,$sNewLine) = ('', '');
-      # Moeten altijd of allebei niet of allebei wel gedefinieerd zijn.
+      # Both must be defined, or both not.
       if( exists($hrDates->{sDateFrom}) && $hrDates->{sDateFrom} ) {
 	$sDatePrint = "   <interpGrp type=\"textYear_from\"><interp" .
 	  " value=\"$hrDates->{sDateFrom}\"/></interpGrp>\n" .
@@ -308,7 +303,7 @@ sub atEndOfFile {
 	$sNewLine = "\n";
       }
 
-      # Moeten altijd of allebei niet of allebei wel gedefinieerd zijn.
+      # Both must be defined, or both not.
       my $sDateWitnessPrint = '';
       if( exists($hrDates->{sDateWitnessFrom}) &&
 	  $hrDates->{sDateWitnessFrom} ) {
@@ -330,14 +325,14 @@ BIBL
 		      "Wat doen we met circa '$hrTag->{sTagText}'\n")
 	if( exists($hrDates->{bCirca}) && $hrDates->{bCirca} );
     }
-    else { # Geen dateFrom/dateTo/dateWitnessFrom/dateWitnessTo
+    else { # No dateFrom/dateTo/dateWitnessFrom/dateWitnessTo
       $self->printOut("ERROR in '$self->{sFileBaseName}'$sComCor: " .
 		      "Geen dateFrom/dateTo/dateWitnessFrom/dateWitnessTo " .
 		      "voor '$hrTag->{sTagText}', ook niet in db.\n");
     }
   }
 
-  # Voeg de inlMetadata/listBibl toe als er ook echt wat toe te voegen is
+  # Add the inlMetadata/listBibl if there is indeed something to add
   $self->{sText} =~ s#</sourceDesc>#$sListBibl</listBibl>\n</sourceDesc>#
     if( length($sListBibl) > 30);
 
@@ -378,8 +373,8 @@ sub dateNotSpecificEnough {
 sub levelDates {
   my ($hrDates, $sDateFrom, $sDateTo) = @_;
 
-  # Als we alleen dateTo weten blijft dateFrom UNKNOWN.
-  # Als we alleen dateFrom weten maken we dateTo daar gelijk aan.
+  # If we only have dateTo, dateFrom keeps UNKNOWN.
+  # If we only have dateFrom, give dateTo the same value.
   if( $hrDates ) {
     if( exists($hrDates->{$sDateTo}) &&
 	(! exists($hrDates->{$sDateFrom})) ) {
@@ -409,9 +404,9 @@ sub isComCorFile {
       "$self->{sFileBaseName}.\n";
   }
   else {
-    # Sommige files bestaan niet in de DBNLMilestones dir..?!?
+    # Some files don't exist in the DBNLMilestones dir.
     if( scalar(@aFiles)
-	## && ($aFiles[0] =~ /comcor/) <- hoeft nu niet meer...
+	
       ) {
       return $aFiles[0];
     }
@@ -451,7 +446,7 @@ sub getMilestoneRecord {
     return \%hResultRow;
   }
   else {
-    # Alleen een 'ana' is ook al goed (en geen 'corresp')
+    # Only an 'ana' is good enough (and no 'corresp')
     $self->printOut("ERROR in '$self->{sFileName}': " .
 		    "Geen milestone '$hrTag->{sTagText}' voor " .
 		    "'$self->{sFileBaseName}' in de database.\n")
@@ -466,7 +461,7 @@ sub findMetadataRecord {
   $self->{qhSelectMetadataRecord}->execute($self->{sFileBaseName});
 
   if(my $hrRow = $self->{qhSelectMetadataRecord}->fetchrow_hashref()) {
-    ; # Even niks
+    ; # nothing!
   }
   else {
     $self->printOut("ERROR: Kon geen metadata vinden voor " .
@@ -520,28 +515,28 @@ sub closeScriptOutputFileHandler {
   close($self->{fhScriptOutput});
 }
 
-# Losse functie ###############################################################
+# div functions ###############################################################
 
 sub getAnas {
   my ($sAna) = @_;
 
   return undef unless($sAna);
 
-  # d1889 -> 1889 -> tekst
+  # d1889 -> 1889 -> text
   if( $sAna =~ /^d(\d{4})$/i) {
     return {sDateFrom => $1,
 	    sDateTo => $1};
-  } # d1868_1894 -> tekst_tekstgetuige (d11701_1791 <- Komt voor, typefoutje..)
+  } # d1868_1894 -> text witness (d11701_1791 <- happens, typo)
   elsif( $sAna =~ /^d1?(\d{4})_(\d{4})$/i ) {
     return {sDateFrom => $1,
 	    sDateTo => $1,
 	    sDateWitnessFrom => $2,
 	    sDateWitnessTo => $2};
-  } # 1867-1898 -> tekst from - to
+  } # 1867-1898 -> text from - to
   elsif( $sAna =~ /^d(\d{4})\-(\d{4})$/i ) {
     return {sDateFrom => $1,
 	    sDateTo => $2};
-  } # d1886-87 -> tekst from 1886 to 1887
+  } # d1886-87 -> text from 1886 to 1887
   elsif( $sAna =~ /d(\d{2})(\d{2})-(\d{2})$/i ) {
     return {sDateFrom => "$1$2",
 	    sDateTo => "$1$3"};
@@ -549,29 +544,29 @@ sub getAnas {
   elsif( $sAna =~ /^d?c[a\.]?(\d{4})$/i ) {
     return {sDateFrom => $1 - 5,
 	    sDateTo => $1 + 5};
-  } # d897 -> 1897 (typefoutje)
+  } # d897 -> 1897 (typo)
   elsif( $sAna =~ /^d(\d{3})$/i ) {
     return {sDateFrom => "1$1",
 	    sDateTo => "1$1"};
-  } # d1906_906 (typefoutje);
+  } # d1906_906 (typo);
   elsif( $sAna =~ /^d(\d{4})_(\d{3})$/i ) {
     return {sDateFrom => $1,
 	    sDateTo => $1,
 	    sDateWitnessFrom => "1$2",
 	    sDateWitnessTo => "1$2"};
-  } # d1632-34_1682 -> tekst from - to _ tekstgetuige
+  } # d1632-34_1682 -> text from - to _ text witness
   elsif( $sAna =~ /^d(\d{2})(\d{2})-(\d{2})_(\d{4})$/i ) {
     return {sDateFrom => "$1$2",
 	    sDateTo => "$1$3",
 	    sDateWitnessFrom => $4,
 	    sDateWitnessTo => $4 };
-  } # d1650-51_1650-51 -> tekst from - to - tekstgetuige from - to
+  } # d1650-51_1650-51 -> text from - to - text witness from - to
   elsif( $sAna =~ /^d(\d{2})(\d{2})-(\d{2})_(\d{2})(\d{2})-(\d{2})$/i ) {
     return {sDateFrom => "$1$2",
 	    sDateTo => "$1$3",
 	    sDateWitnessFrom => "$4$5",
 	    sDateWitnessTo => "$4$6"};
-  } # d1650_1650-51 -> tekst from - to - tekstgetuige from - to
+  } # d1650_1650-51 -> text from - to - text witness from - to
   elsif( $sAna =~ /^d(\d{4})_(\d{2})(\d{2})-(\d{2})$/i ) {
     return {sDateFrom => $1,
 	    sDateTo => $1,
@@ -601,7 +596,7 @@ sub getAnas {
 	    sDateWitnessTo => $2};
   } # d _1600
   elsif( $sAna =~ m!^d[\s-]*_(\d{4})$!i ) {
-    my $sYear = ($1 eq '9145') ? '1945' : $1; # Zeer ad hoc, maar het kwam voor
+    my $sYear = ($1 eq '9145') ? '1945' : $1; # ad hoc, but it occurs
     return {sDateWitnessFrom => $sYear,
 	    sDateWitnessTo => $sYear};
   } # d16de e. -> 1501 - 1600

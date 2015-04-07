@@ -49,7 +49,7 @@ sub setInputFileHandle {
       or $self->endProgram("Couldn't open $sFileName: $!\n");
   }
 
-  # Remember the file name as well...
+  # Remember the file name as well.
   $self->{sInputFileName} = $sFileName;
   $self->{fhInput} = *FH;
   # New filehandle, so we assume we start anew here
@@ -92,7 +92,7 @@ sub determineXmlFormat {
     }
     elsif($firstTag =~ "<TEI\.2") {
       ##$self->{sXmlFormat} = 'TEI2';
-      $self->{sXmlFormat} = 'JSI_V03'; ## <<< Voor Brieven Als Buit <<<
+      $self->{sXmlFormat} = 'JSI_V03'; ## <<< for Brieven Als Buit <<<
     }
     elsif( # JSI V0.2
           ($firstTag =~ "<TEI xmlns=") && ($firstTag =~ / xml:lang="sl" /)) {
@@ -108,8 +108,7 @@ sub determineXmlFormat {
     }
     elsif(($firstTag =~ /^<PcGts xmlns="http:\/\/schema\.primaresearch\.org/) ||
 	  ($firstTag =~ /xmlns:IGTnew/) ) {
-      # Ik weet niet of dit wel echt klopt tegenover het Poolse en Tsjechische
-      # materiaal maar daar kan ik even geen voorbeeld meer van vinden...
+
       $self->{sXmlFormat} = 'PageXML_BritishLibrary';
     }
     elsif( $firstTag =~ /^<PcGts / ) {
@@ -120,7 +119,7 @@ sub determineXmlFormat {
 			"'$firstTag', file '$self->{sInputFileName}'.\n");
     }
   }
-#  die $self->{sXmlFormat};
+
 }
 
 # It is assumed that there is a valid open file handle here which points to the
@@ -135,13 +134,13 @@ sub determineXmlFormatAssumingTheFirstTagIsOnTheSecondLine {
     $self->{sXmlFormat} = "Fixed";
   }
   else {
-    # Done like this or the code below won't parse...
+    # Done like this or the code below won't parse.
     my $fhHandle = $self->{fhInput};
     # Read the first line and ignore it
     <$fhHandle>;
     # Read the second line and try to deduce the format
     my $sSecondLine  = <$fhHandle>;
-    $sSecondLine =~ s/[\n\r]+$//; # Somehow chomping doesn't do the trick...
+    $sSecondLine =~ s/[\n\r]+$//; # chomping doesn't work
     my $sSubstr = substr($sSecondLine, 0, 11);
     if( $sSubstr eq "<IGT:Impact") {
       $self->{sXmlFormat} = 'IGT';
@@ -199,12 +198,6 @@ sub parseFile {
     $self->emptyText();
   }
 
-  # Dit is alleen voor 'echte' XML. Dus bijvoorbeeld niet bij .fixed formaat...
-  #  if( length($self->{hrText}->{sText}) ) {
-  #    $self->endProgram("ERROR: stray output at end of file: '$self->{hrText}->{sText}'\n"
-  #      unless($self->{hrText}->{sText} =~ /^\s+$/s);
-  #    $self->{oEventHandler}->atText($self->{hrText});
-  #  }
   $self->{oEventHandler}->atEndOfFile()
     if($self->{oEventHandler}->can(atEndOfFile));
 
@@ -219,7 +212,7 @@ sub parseString {
   # Always start from scratch
   $self->reInit();
 
-  # Well, start of string really...
+  # start of string
   $self->{oEventHandler}->atStartOfFile($self->{sInputFileName})
     if($self->{oEventHandler}->can(atStartOfFile));
 
@@ -239,14 +232,8 @@ sub parseString {
     $self->emptyText();
   }
 
-  # Dit is alleen voor 'echte' XML. Dus bijvoorbeeld niet bij .fixed formaat...
-  #  if( length($self->{hrText}->{sText}) ) {
-  #    $self->endProgram("ERROR: stray output at end of file: '$self->{hrText}->{sText}'\n"
-  #      unless($self->{hrText}->{sText} =~ /^\s+$/s);
-  #    $self->{oEventHandler}->atText($self->{hrText});
-  #  }
 
-  # Well, end of string really...
+  # end of string.
   $self->{oEventHandler}->atEndOfFile()
     if($self->{oEventHandler}->can(atEndOfFile));
 }
@@ -266,7 +253,7 @@ sub handleChar {
 	$self->handleCharInComment($c);
       } # Process instruction
       elsif( (substr($self->{hrCurrentTag}->{sTagName}, 0, 1) eq '?') &&
-	     # First line is <?xml ...?>. That's different...
+	     # First line is <?xml ...?>. 
 	     ($self->{iLineNr} != 1) ) {
 	$self->handleCharInProcessInstruction($c);
       }
@@ -282,7 +269,7 @@ sub handleChar {
       }
       elsif( $c eq "\n") { # Not in attribute value and $c is a newline
 	# This is really the same as a space presumably, but we split them
-	# anyway...
+	# anyway.
 	$self->handleNewlineInTag($c);
       }
       else { # Not in attribute value and $c is not a space
@@ -312,7 +299,7 @@ sub handleChar {
       $self->{hrText}->{sText} .= $c;
     }
   }
-  # print "'$c' at $self->{iPosition}\n";
+
 
   $self->{iLineNr}++ if( $c eq "\n" );
   $self->{iPosition}++;
@@ -341,7 +328,7 @@ sub handleCharInComment {
 sub handleCharInProcessInstruction {
   my ($self, $c) = @_;
 
-  # I don't know if this is actually correct...
+  # We should check if this is actually correct.
   # The way things are done now an arbitrary number of ?'s can occur.
   if( $c eq '?' ) {
     $self->{hrState}->{iProcessInstructionEndTag} = 1;
@@ -391,11 +378,11 @@ sub handleEndBracket {
   $self->{hrState}->{iProcessInstructionEndTag} = 0;
 
   # If there was a stray character, this was taken to be the start of an
-  # attribute name, and as such it won't have a value...
+  # attribute name, and as such it won't have a value.
   if( length($self->{hrCurrentTag}->{sCurrentAttribute}) &&
       (! exists($self->{hrCurrentTag}->{hrAttributes}->{$self->{hrCurrentTag}->{sCurrentAttribute}})) &&
       # In the case of the start tag there is a '?' just before the closing tag
-      # <?xml ... ?> so that is allowed...
+      # <?xml ... ?> so that is allowed.
       ( ! ( ($self->{iLineNr} == 1) && # <?xml ..?> always on first line
 	    ($self->{hrCurrentTag}->{sCurrentAttribute} eq '?')) ) &&
       # What can also be the case is that we have a selve closing tag (ie. it

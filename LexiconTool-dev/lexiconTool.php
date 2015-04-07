@@ -1,6 +1,7 @@
 <html>
 <head>
 <meta name="http-equiv" content="Content-Type: text/html; charset=utf-8">
+<title>IMPACT CoBaLT v2015.04.02</title>
 
 <!-- prevent caching of javascript etc. -->
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -115,7 +116,7 @@ pic24.src = "./img/grayChecked.gif";
 // (see user 'PeerGoal.com' at http://php.net/manual/en/function.date-default-timezone-set.php)
 date_default_timezone_set("Europe/Amsterdam");
 
-//error handler function
+// error handler function
 function customError($errno, $errstr, $errfile, $errline)
   {
   echo "<b>Error:</b> [$errno] $errstr<br />";
@@ -167,17 +168,19 @@ $sFileName = isset($_REQUEST['sFileName']) ? $_REQUEST['sFileName'] : false;
 $iCorpusId = isset($_REQUEST['iCorpusId']) ? $_REQUEST['iCorpusId'] : false;
 $sCorpusName = isset($_REQUEST['sCorpusName']) ? $_REQUEST['sCorpusName']
 : false;
-// The next one makes deep linking to a particular filter possibly
-// NOTE that you have to type it in yourself though in the url...
+
+// Make deep linking to a particular filter possible
 $sGoto = isset($_REQUEST['sGoto']) ? addslashes($_REQUEST['sGoto']) : '';
 $sFilter = isset($_REQUEST['sFilter']) ? addslashes($_REQUEST['sFilter']) : '';
 $sLemmaFilter = isset($_REQUEST['sLemmaFilter']) ?
  addslashes($_REQUEST['sLemmaFilter']) : '';
-// I thought it would have to be addslashes(rawurldecode($_REQUEST['sFilter']))
-// but somehow the filter comes decoded already...
+// NOTE that addslashes(rawurldecode($_REQUEST['sFilter']))
+// is not needed here, as the filter comes decoded already.
+
 // NOTE that case INsensitivity is default ON
 $bCaseInsensitivity = isset($_REQUEST['bCaseInsensitivity']) ?
 ($_REQUEST['bCaseInsensitivity'] == 'true') ? true : false : true;
+
 // Don't show options.
 // The default is not to show the don't shows, so we need to know what we DO
 // have to show
@@ -186,16 +189,19 @@ $bDoShowCorpus = isset($_REQUEST['bDoShowCorpus']) ?
  $_REQUEST['bDoShowCorpus'] : 0;
 $bDoShowDocument = isset($_REQUEST['bDoShowDocument']) ?
  $_REQUEST['bDoShowDocument'] : 0;
+ 
 // Nr of word forms per page is 100 by default
-// Do pay attention that this default is a value that is also featured in the
+// NOTE that this default is a value that is also featured in the
 // $GLOBALS['aNrOfWordFormsPerPage'] list.
 $iNrOfWordFormsPerPage = isset($_REQUEST['iNrOfWordFormsPerPage']) ?
  $_REQUEST['iNrOfWordFormsPerPage'] : 100;
+ 
 // Nr of word forms per page is 100 by default
-// Do pay attention that this default is a value that is also featured in the
+// NOTE that this default is a value that is also featured in the
 // $GLOBALS['aNrOfSentencesPerWordform'] list.
 $iNrOfSentencesPerWordform = isset($_REQUEST['iNrOfSentencesPerWordform']) ?
  $_REQUEST['iNrOfSentencesPerWordform'] : 15;
+ 
 // Amount of context. Default 220
 $iAmountOfContext = isset($_REQUEST['iAmountOfContext']) ?
  $_REQUEST['iAmountOfContext'] : $GLOBALS['aAmountOfContext']['normal'];
@@ -329,13 +335,8 @@ else { // First time after login
     "var iUserId = $iUserId; var sUserName = '$sUserName';</script>";
   
   if( $sNewUploadFile ) { // If the user added a file to a corpus
-    /// Dummy waarde... ///
+    // Dummy value
     $sAuthor = 'Impact';
-
-    /// Wordt bovenin al gedaan
-    ///    if($_FILES['sNewUploadFile']['error'] != UPLOAD_ERR_OK)
-    ///  print 'Upload file error: ' . $_FILES['sNewUploadFile']['error'];
-    ///else {
     $sNewFile =
       "$sDocumentRoot/" . basename($_FILES['sNewUploadFile']['name']);
 
@@ -345,7 +346,7 @@ else { // First time after login
 
     processFile($sDocumentRoot, $sZipExtractDir, $sDatabase, $iCorpusAddedTo,
 		$sNewFile, $sAuthor);
-    /// }
+
   }
 
   print "</head>\n<body bgcolor='#FFFFFF' onLoad=\"javascript: " .

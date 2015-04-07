@@ -1,4 +1,4 @@
-// Very useful function that I found on QuirksMode:
+// Very useful function found on QuirksMode:
 // http://www.quirksmode.org/js/findpos.html
 //
 // NOTE however that it doesn't work with divs that are scrolled
@@ -16,9 +16,9 @@ function findPos(obj) {
 // This function gets you a 'unique' string in the form of the number
 // of milliseconds since 1970 January 1st. It can be appended to a URL
 // which will then always be unique to the webserver/caching mechanism.
-// This pretty stupid trick has to be performed in order to prevent IE
+// This trick has to be performed in order to prevent IE
 // from never actually carrying out AJAX calls more than once.
-// I got the suggestion from http://www.howtoadvice.com/StopCaching
+// Got the suggestion from http://www.howtoadvice.com/StopCaching
 function uniqueString() {
   return "sUnique=" + new Date().getTime();
 }
@@ -37,9 +37,6 @@ function escapeSingleQuotes(sString) {
 // Found this one on:
 // http://stackoverflow.com/questions/576343/how-to-html-encode-a-string-in-
 // javascript-from-a-firefox-extension
-//
-// Bit strange that javascript doens't have a built-in function I think, but
-// well..
 function htmlDecode(sString){
   if( sString.length) {
     var oDiv = document.createElement('div');

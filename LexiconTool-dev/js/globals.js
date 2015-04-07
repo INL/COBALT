@@ -18,7 +18,7 @@
 // E.g: Ctrl = 17, F9 = 120
 var iCtrlKey = 17;
 
-// The ones below need no setting, so leave these as they are...
+// The ones below need no setting, so leave these as they are.
 var iStartAt= 0;
 var sClickedInWindowPart = '';
 var iHeldDownKey = 0;
@@ -39,7 +39,4 @@ var sPosInputBeforeEditing = '';
 var oXmlHttpTextRowRequest = false;
 var oXmlHttpLemmaSuggestion = false;
 var iStartAtSentence = 0;
-// For sorting the sentences
-/// worden nu gezet in printJavascriptGlobals()
-/// var sSortSentencesBy = false;
-/// var sSortSentencesMode= false;
+

@@ -7,7 +7,7 @@ sub new {
   my $self = \%hOptions;
   bless $self, $class;
 
-  # Initialise something?!?
+  # Initialise
   $self->{bInContentTag} = undef;
 
   return $self;
@@ -35,9 +35,9 @@ sub atText {
   my ($self, $hrText) = @_;
   print "Text: '$hrText->{sText}'\n";
   if($self->{bInContentTag} ) {
-    # We tellen eentje op bij de iEndPos zodat de checkOnsetOffsets.pl klopt.
-    # Maar eigenlijk wijst iOffset dus naar het laatste karakter van de string
-    # (en niet eentje daarna).
+    # We add 1 to iEndPos, in such a way that checkOnsetOffsets.pl is right.
+    # But actually iOffset indicates the final character of a string
+    # (and not one character ahead of it).
     
 	print "Text: '$hrText->{sText}' (character positions: " .
       "$hrText->{iStartPos}, " . ($hrText->{iEndPos} + 1) . ")\n";

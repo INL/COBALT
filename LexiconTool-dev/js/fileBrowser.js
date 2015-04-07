@@ -120,7 +120,7 @@ function newCorpus(sNewCorpusName) {
     }
   }
   // NOTE that we append a "unique string" at the end, to make sure that e.g.
-  // IE will actually carry out AJAX calls more than once as well...
+  // IE will actually carry out AJAX calls more than once as well.
   oXmlHttp.open("GET", sPage, true);
 
   oXmlHttp.send(null);
@@ -168,7 +168,7 @@ function removeCorpus(iCorpusId, sCorpusName) {
     }
   }
   // NOTE that we append a "unique string" at the end, to make sure that e.g.
-  // IE will actually carry out AJAX calls more than once as well...
+  // IE will actually carry out AJAX calls more than once as well.
   oXmlHttp.open("GET", sPage, true);
 
   oXmlHttp.send(null);

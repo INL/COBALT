@@ -21,14 +21,10 @@ foreach($aSelectedSentences as $sKey => $sValue) {
 
 //Engeland€
 $sLine = "dotäba\tDOTÄBA.\t4492\t4496\t\n";
-//"hallo\t(.hal<tag>lo.)\t666\t676\n";
+
 
 $sTest = "ld€aäs";
-//preg_match_all("/(.)/u", $sTest, $aMatches, PREG_SET_ORDER);
-//for($i = 0; $i < count($aMatches); $i++) {
-//foreach ($aMatches as $val) {
-//  print "Char: " . $val[1] . ", " . strtoupper($val[1]) . "<br>\n";
-//}
+
 $aArr = strToUtf8Array($sTest);
 for($i = 0; $i < count($aArr); $i++) {
   print "$i: '$aArr[$i]'<br>\n";

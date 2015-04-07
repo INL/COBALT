@@ -36,7 +36,7 @@ print "<title>" .
 <?php
 
 
-// 2013: Get the entire file
+// Get the entire file
 // two possible modes: full database mode, or physical files mode
 if (fullDatabaseMode($sDatabase))
 	{
@@ -65,11 +65,7 @@ if( $iWindowStart < 0) {
   $iWindowStart = 0;
 }
 
-print
-// "Document: " .
-//substr($sDocumentTitle, strlen($GLOBALS['sDocumentRoot']) + 1) .
-//" (window length: $iNewWindowWidth)\n<p>\n" .
-"<div align=right><form action='JavaScript:window.close()' method=POST>" .
+print "<div align=right><form action='JavaScript:window.close()' method=POST>" .
 " <input type=submit value='Close'></form></div>";
 
 print "<div class=moreContextDoc>";
@@ -101,7 +97,7 @@ print "<p>";
 print makePrintable_simple(substr($sFileContents, $iWindowStart, $iWindowLength));
 
 // central part (matched)
-print " <span class=matchedPart>" . /// $sWordForm .
+print " <span class=matchedPart>" . 
 substr($sFileContents,
        $iSearchOffset - 2,
        strpos(substr($sFileContents, $iSearchOffset - 1, 300), "\t") + 1) .

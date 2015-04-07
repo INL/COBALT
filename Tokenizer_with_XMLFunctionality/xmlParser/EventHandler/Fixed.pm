@@ -13,7 +13,7 @@ use impactok::impactok;
 
 # NOTE that we never 'die' as that will print to stderr which the
 # Lexicon Tool's php scripts won't print.
-# In stead, we use impactok::impactok::endProgram()
+# Instead, we use impactok::impactok::endProgram()
 
 # Constructor
 sub new {

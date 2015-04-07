@@ -81,13 +81,11 @@ function getLateralTokenAttestations($iDocumentId, $sWordForm, $iStartPos) {
 
     // LEFT JOIN for multiple lemmata analyses
     "(SELECT analyzed_wordforms.analyzed_wordform_id," .
-    " token_attestations.derivation_id," . // <-- Klopt dat wel bij multiples?!?
+    " token_attestations.derivation_id," . // <-- Todo: We should check if this is right for multiples
     " token_attestations.start_pos," .
     " mla.analysesForSentence" .
     " FROM token_attestations, analyzed_wordforms " .
     "LEFT JOIN (SELECT multiple_lemmata_analyses.multiple_lemmata_analysis_id,"
-    /// 2011-09-12: Toch wel DISTINCT
-    /// . "  GROUP_CONCAT(DISTINCT " .
     . "  GROUP_CONCAT(" .
     "   CONCAT(\"$sWordForm\", '&nbsp;&lt;', REPLACE(REPLACE(REPLACE(lemmata.modern_lemma, '>', '&gt;'), '<', '&lt;'), ' ', '&nbsp;'), " .
 
@@ -136,9 +134,9 @@ function getLateralTokenAttestations($iDocumentId, $sWordForm, $iStartPos) {
     "   = token_attestations.analyzed_wordform_id" .
     "  AND analyzed_wordforms.wordform_id = $iWordFormId" .
     "  AND mlapartsOuter.lemma_id = lemmata.lemma_id " .
-    /// Eerst dit: "GROUP BY multiple_lemmata_analysis_id) mla " .
-    /// Toch niet "GROUP BY multiple_lemmata_analysis_id, multiple_lemmata_analyses.part_number) mla " .
-    /// Wel met attestation_id erbij
+    /// First this: "GROUP BY multiple_lemmata_analysis_id) mla " .
+    /// But not "GROUP BY multiple_lemmata_analysis_id, multiple_lemmata_analyses.part_number) mla " .
+    /// Include attestation_id indeed
     "GROUP BY multiple_lemmata_analysis_id, attestation_id) mla " .
     /// 
     "ON (mla.multiple_lemmata_analysis_id" .
@@ -477,7 +475,6 @@ function getPartId($sLemmaTuple, $sAddMode) {
   // First get/make a lemma record, based on headword, pos, language, gloss
   $iLemmaId = getLemmaId_forLemmaArr($aLemmaArr, $sAddMode);
 
-  /// NEW
   // Make a derivation if necessary
   $iDerivationId = ( $aLemmaArr[1] || $aLemmaArr[2] )
     ? getDerivationId_forLemmaArr($aLemmaArr, $sAddMode) : 0;
@@ -536,7 +533,7 @@ function getLemmaId_forLemmaArr($aLemmaArr, $sMode) {
     "WHERE modern_lemma = '$aLemmaArr[0]'" .
     "  AND lemma_part_of_speech = '$aLemmaArr[3]'";
   // Language
-  // Language id IS NULL is left out (i.e. no backwards compatibility)
+  // (language_id IS NULL is left out, i.e. no backwards compatibility)
   $sSelectQuery .= ($aLemmaArr[4])
     ? " AND language_id = $aLemmaArr[4]" : " AND language_id = 0";
   // Gloss
@@ -548,7 +545,7 @@ function getLemmaId_forLemmaArr($aLemmaArr, $sMode) {
       return $aRow['lemma_id'];
   
   if( $sMode == 'dontAdd') // E.g. when you filter on a lemma you just want to
-    return false;          // know if it's there or not...
+    return false;          // know if it's there or not.
 
   // If it isn't, create one
   // Uppercase the POS if necessary.
@@ -646,7 +643,7 @@ function getTokenDbDatabaseId($sDatabase) {
       " FROM " . getTheRightTokenDatabase() . ".lexicon_databases " .
       "WHERE name = '$sDatabase'";
     printLog("Doing (" . getTheRightTokenDatabase() . ") $sSelectQuery<br>\n");
-    $oResult = mysql_query($sSelectQuery /*, $GLOBALS['dbhTokenDb']*/);
+    $oResult = mysql_query($sSelectQuery);
     printMySQLError($sSelectQuery);
 
     if( $oResult ) {
@@ -661,12 +658,12 @@ function getTokenDbDatabaseId($sDatabase) {
     // It didn't exist... we insert it
     $sInsertQuery = "INSERT INTO " . getTheRightTokenDatabase() .
       ".lexicon_databases (name) VALUES ('$sDatabase')";
-    mysql_query($sInsertQuery /*, $GLOBALS['dbhTokenDb']*/ );
+    mysql_query($sInsertQuery );
     printMySQLError($sInsertQuery);
 
     // And try selecting again
     printLog("Doing (" . getTheRightTokenDatabase() . ") $sSelectQuery<br>\n");
-    $oResult = mysql_query($sSelectQuery /*, $GLOBALS['dbhTokenDb'] */);
+    $oResult = mysql_query($sSelectQuery);
     printMySQLError($sSelectQuery);
 
     if( $oResult ) {
@@ -758,7 +755,7 @@ function getPageRank($sWordformLookedFor,
   $sSelectQuery .=
     " LEFT JOIN dont_show ON " .
     "(dont_show.wordform_id = type_frequencies.wordform_id";
-  /// Dit veranderd.
+
   if( $sMode == 'corpus' ) {
     $sSelectQuery .= " AND (dont_show.corpus_id = $iId " .
       "OR dont_show.at_all != 0) ";
@@ -815,7 +812,7 @@ function getPageRank($sWordformLookedFor,
   $sSelectQuery .= "GROUP BY type_frequencies.wordform_id ";
   if( ! $sFilter)
     $sSelectQuery .= ") tmp WHERE tmp.wordform_id = wordforms.wordform_id ";
-  // Even anders
+
   if( (! $sFilter) && ($sSortBy == 'frequency') )
     $sSortByClause = 'freq';
   $sSelectQuery .= "ORDER BY $sSortByClause $sSortMode$sExtraSort " ;
@@ -896,7 +893,6 @@ function getWordsToAttest($iId, $sMode, $sSortBy, $sSortMode, $bSortReverse,
     " LEFT JOIN dont_show ON " .
     "    (dont_show.wordform_id = type_frequencies.wordform_id";
 
-  /// Dit veranderd.
   if( $sMode == 'corpus' ) {
     $sSelectQuery .= " AND (dont_show.corpus_id = $iId " .
       "OR dont_show.at_all != 0) ";
@@ -911,7 +907,6 @@ function getWordsToAttest($iId, $sMode, $sSortBy, $sSortMode, $bSortReverse,
     "wordforms " .
     // LEFT JOIN for the multiple lemmata analyses in this corpus
     "LEFT JOIN (SELECT analyzed_wordforms.wordform_id," .
-    /// 2011-09-12
     "    GROUP_CONCAT(DISTINCT mla.mla SEPARATOR ' | ')".
     " multipleLemmataAnalysesInCorpus".
     " FROM token_attestations, ";
@@ -920,8 +915,8 @@ function getWordsToAttest($iId, $sMode, $sSortBy, $sSortMode, $bSortReverse,
   $sSelectQuery .= "analyzed_wordforms " .
     " LEFT JOIN (SELECT" .
     "  multiple_lemmata_analyses.multiple_lemmata_analysis_id,".
-    /// DISTINCT niet!
-    /// "  GROUP_CONCAT(DISTINCT" .
+    // Changed:
+    // "  GROUP_CONCAT(DISTINCT" .
     "  GROUP_CONCAT(" .
     " CONCAT(REPLACE(REPLACE(lemmata.modern_lemma, '>', '&gt;'), '<', '&lt;'),".
     "    IF(myPatterns.normalized_wordform IS NULL, ''," .
@@ -933,9 +928,9 @@ function getWordsToAttest($iId, $sMode, $sSortBy, $sSortMode, $bSortReverse,
     "       CONCAT(',&nbsp;',languages.language))), ".
     "    IF(lemmata.gloss = '', ''," .
     "       CONCAT(',&nbsp;', REPLACE(lemmata.gloss, ' ', '&nbsp;')))" .
-    ///
+
     "   ORDER BY multiple_lemmata_analyses.part_number ASC" .
-    ///
+
     "   SEPARATOR '&nbsp;&&nbsp;') mla" .
     " FROM multiple_lemmata_analyses," .
     "      multiple_lemmata_analysis_parts mlapartsOuter" .
@@ -985,18 +980,18 @@ function getWordsToAttest($iId, $sMode, $sSortBy, $sSortMode, $bSortReverse,
     "  = multiple_lemmata_analyses.multiple_lemmata_analysis_id" .
     " AND analyzed_wordforms.wordform_id IN ($sWordformIds)" .
     " AND mlapartsOuter.lemma_id = lemmata.lemma_id " .
-    /// Eerst dit:
+    /// First this:
     /// "GROUP BY analyzed_wordforms.wordform_id, multiple_lemmata_analysis_id) " .
-    /// Niet dit:
+    /// Not this:
     /// "GROUP BY analyzed_wordforms.wordform_id, multiple_lemmata_analysis_id, multiple_lemmata_analyses.part_number) " .
-    /// Wel attestation_id erbij
+    /// But with attestation_id included
     "GROUP BY analyzed_wordforms.wordform_id, attestation_id, multiple_lemmata_analysis_id) " .
     "mla ON (mla.multiple_lemmata_analysis_id" .
     " = analyzed_wordforms.multiple_lemmata_analysis_id) " .
     "WHERE analyzed_wordforms.wordform_id IN ($sWordformIds) " .
     // Next condition is necessary because the multiple_lemmata_analysis_id
     // is also 0 for other analyzed_wordforms (it should be NULL, but then
-    // it can't feature in a UNIQUE KEY...).
+    // it can't feature in a UNIQUE KEY).
     "  AND analyzed_wordforms.lemma_id = 0 ";
   if( $sMode == 'corpus')
     $sSelectQuery .= "AND corpusId_x_documentId.corpus_id = $iId " .
@@ -1018,8 +1013,8 @@ function getWordsToAttest($iId, $sMode, $sSortBy, $sSortMode, $bSortReverse,
     // The mla column
     "          CONCAT(IF(analyzed_wordforms.verified_by IS NULL, 0, 1), ', ',".
     "              analyzed_wordforms.analyzed_wordform_id, ', ',".
-    /// DISTINCT nodig
-    ///"              GROUP_CONCAT(DISTINCT CONCAT(REPLACE(REPLACE(lemmata.modern_lemma, '>', '&gt;'), '<', '&lt;')," .
+    // Changed:
+    // "              GROUP_CONCAT(DISTINCT CONCAT(REPLACE(REPLACE(lemmata.modern_lemma, '>', '&gt;'), '<', '&lt;')," .
     "              GROUP_CONCAT(CONCAT(REPLACE(REPLACE(lemmata.modern_lemma, '>', '&gt;'), '<', '&lt;')," .
 
     "    IF(myPatterns.normalized_wordform IS NULL, ''," .
@@ -1032,9 +1027,9 @@ function getWordsToAttest($iId, $sMode, $sSortBy, $sSortMode, $bSortReverse,
     "                                 '', CONCAT(', ', languages.language))),".
     "                IF(lemmata.gloss = '',''," .
     "                   CONCAT(', ',REPLACE(gloss, ' ', '&nbsp;')))" .
-    ///
+
     "                ORDER BY multiple_lemmata_analyses.part_number ASC" .
-    ///
+
     "                SEPARATOR '&nbsp;&&nbsp;') ) mla";
   $sSelectQuery .=
     "          FROM analyzed_wordforms, multiple_lemmata_analyses,".
@@ -1069,9 +1064,9 @@ function getWordsToAttest($iId, $sMode, $sSortBy, $sSortMode, $bSortReverse,
     "          LEFT JOIN languages ON" .
     "                           (languages.language_id = lemmata.language_id)".
     "          WHERE analyzed_wordforms.lemma_id = 0" .
-    // Added 2011-07-14
+
     "            AND analyzed_wordforms.wordform_id IN ($sWordformIds) " .
-    //
+
     "            AND analyzed_wordforms.multiple_lemmata_analysis_id" .
     "                = multiple_lemmata_analyses.multiple_lemmata_analysis_id".
     "         AND multiple_lemmata_analyses.multiple_lemmata_analysis_part_id".
@@ -1119,12 +1114,12 @@ function getWordsToAttest($iId, $sMode, $sSortBy, $sSortMode, $bSortReverse,
     " LEFT JOIN patterns ON" .
     "    (pattern_applications.pattern_id = patterns.pattern_id) " .
     "WHERE a2.derivation_id = derivations.derivation_id " .
-    // Added for speed 2011-04-04
+    // Added for speed 
     "  AND a2.wordform_id IN ($sWordformIds) " .
     //
-    /// "GROUP BY derivations.derivation_id)". /// <- FOUT !!!
+    // "GROUP BY derivations.derivation_id)". /// <- Removed, wrong!
     "GROUP BY a2.analyzed_wordform_id)".
-    /// 
+    
     " myPatterns ON (myPatterns.analyzed_wordform_id=a1.analyzed_wordform_id),"
     . " lemmata " .
     "LEFT JOIN languages ON (languages.language_id = lemmata.language_id)".
@@ -1179,7 +1174,7 @@ function getWordsToAttest($iId, $sMode, $sSortBy, $sSortMode, $bSortReverse,
     "    (pattern_applications.pattern_id = patterns.pattern_id) " .
     "WHERE analyzed_wordforms.derivation_id =" .
     "        derivations.derivation_id " .
-    // Added for speed 2011-04-04
+    // Added for speed 
     "  AND analyzed_wordforms.wordform_id IN ($sWordformIds) " .
     "GROUP BY analyzed_wordforms.analyzed_wordform_id)".
     " myPatterns ON (myPatterns.analyzed_wordform_id=a.analyzed_wordform_id),"
@@ -1192,7 +1187,7 @@ function getWordsToAttest($iId, $sMode, $sSortBy, $sSortMode, $bSortReverse,
     " GROUP BY a.wordform_id) analysesInDb " .
     " ON (analysesInDb.wordform_id = wordforms.wordform_id) ";
 
-  // And on with the main query...
+  // And on with the main query.
   $sSelectQuery .=
     "WHERE type_frequencies.wordform_id = wordforms.wordform_id " .
     "AND wordforms.wordform_id IN ($sWordformIds) "; 
@@ -1220,11 +1215,7 @@ function getWordsToAttest($iId, $sMode, $sSortBy, $sSortMode, $bSortReverse,
       $sSelectQuery .=
 	" AND (dont_show.document_id = $iId OR dont_show.document_id IS NULL) ";
   }
-  /// Weg volgens mij
-  /// if( ! $bDoShowAll )
-  ///  $sSelectQuery .=
-  ///    "AND (dont_show.at_all IS NULL OR dont_show.at_all = 0) ";
-  // End of the dont_show part
+
 
   // GROUP BY, ORDER BY
   $sSelectQuery .= "GROUP BY type_frequencies.wordform_id " .
@@ -1274,7 +1265,7 @@ function getWordFormIdsToAttest($iId, $sMode, $sSortBy, $sSortMode,
   $sSelectQuery .=
     " LEFT JOIN dont_show ON " .
     "(dont_show.wordform_id = type_frequencies.wordform_id";
-  /// Dit veranderd.
+
   if( $sMode == 'corpus' ) {
     $sSelectQuery .= " AND (dont_show.corpus_id = $iId " .
       "OR dont_show.at_all != 0) ";
@@ -1331,7 +1322,7 @@ function getWordFormIdsToAttest($iId, $sMode, $sSortBy, $sSortMode,
   $sSelectQuery .= "GROUP BY type_frequencies.wordform_id ";
   if( ! $sFilter)
     $sSelectQuery .= ") tmp WHERE tmp.wordform_id = wordforms.wordform_id ";
-  // Even anders
+
   if( (! $sFilter) && ($sSortBy == 'frequency') )
     $sSortByClause = 'freq';
   $sSelectQuery .= "ORDER BY $sSortByClause $sSortMode$sExtraSort " .
@@ -1423,7 +1414,7 @@ function getLemmaFilterWordformsIds_singleLemma($sLemmaFilter) {
   printLog("Found lemma filter wordform ids: $sLemmaFilterWordformIds\n");
 
   // NEW
-  // We also try look for multiple lemmata analyses with this lemma
+  // We also try and look for multiple lemmata analyses with this lemma
   $sMultiples = getMultipleLemmataAnalysesWordIdsForLemmaId($iLemmaFilterId);
   if( strlen($sMultiples) ) {
     if( strlen($sLemmaFilterWordformIds) )
@@ -1533,14 +1524,14 @@ function getAnalysesInCorpus($iWordFormId, $sMode, $iId) {
     " IF(myPatterns.patterns IS NULL," .
     "    '', CONCAT(',&nbsp;', myPatterns.patterns)),".
     " ',&nbsp;', lemma_part_of_speech, " .
-    // NOTE that the lemmata.language_id IS NULL is opnly there for backwards
+    // NOTE that the lemmata.language_id IS NULL is only there for backwards
     // compatibility
     " IF(lemmata.language_id IS NULL OR lemmata.language_id = 0," .
     "    '', CONCAT(',&nbsp;',languages.language))," .
     " IF(lemmata.gloss = '', ''," .
     "    CONCAT(',&nbsp;', REPLACE(gloss, ' ', '&nbsp;'))))" .
     "    SEPARATOR ' | ') AS analysesInCorpus" .
-    // FROM
+
     "  FROM token_attestations, corpusId_x_documentId, analyzed_wordforms a1 ".
     // LEFT JOIN for patterns/derivations
     " LEFT JOIN (SELECT a2.analyzed_wordform_id," .
@@ -1580,7 +1571,7 @@ function getAnalysesInCorpus($iWordFormId, $sMode, $iId) {
     // LEFT JOIN for the multiple lemmata analyses in this corpus
 
     "LEFT JOIN (SELECT analyzed_wordforms.wordform_id," .
-    /// 2011-09-12: Wel DISTINCT
+    // DISTINCT needed here
     "    GROUP_CONCAT(DISTINCT mla.mla SEPARATOR ' | ')".
     " multipleLemmataAnalysesInCorpus".
     " FROM token_attestations, ";
@@ -1589,8 +1580,8 @@ function getAnalysesInCorpus($iWordFormId, $sMode, $iId) {
   $sSelectQuery .= "analyzed_wordforms " .
     " LEFT JOIN (SELECT" .
     "  multiple_lemmata_analyses.multiple_lemmata_analysis_id,".
-    /// 2011-09-12: Geen DISTINCT
-    /// "  GROUP_CONCAT(DISTINCT CONCAT(REPLACE(REPLACE(lemmata.modern_lemma, '>', '&gt;'), '<', '&lt;'),".
+    // Changed:
+    // "  GROUP_CONCAT(DISTINCT CONCAT(REPLACE(REPLACE(lemmata.modern_lemma, '>', '&gt;'), '<', '&lt;'),".
     "  GROUP_CONCAT(CONCAT(REPLACE(REPLACE(lemmata.modern_lemma, '>', '&gt;'), '<', '&lt;'),".
 
     "    IF(myPatterns.normalized_wordform IS NULL, ''," .
@@ -1601,9 +1592,9 @@ function getAnalysesInCorpus($iWordFormId, $sMode, $iId) {
     "    ',&nbsp;', lemmata.lemma_part_of_speech," .
     "    IF(lemmata.gloss = '', '', CONCAT(', ', lemmata.gloss))," .
     "    IF(languages.language IS NULL,'', CONCAT(', ', languages.language)))".
-    ///
+
     "   ORDER BY multiple_lemmata_analyses.part_number ASC" .
-    ///
+
     "   SEPARATOR '&nbsp;&&nbsp;') mla" .
     " FROM multiple_lemmata_analyses, " .
     "      multiple_lemmata_analysis_parts mlapartsOuter" .
@@ -1653,9 +1644,9 @@ function getAnalysesInCorpus($iWordFormId, $sMode, $iId) {
     " AND multiple_lemmata_analyses.multiple_lemmata_analysis_part_id" .
     "  = mlapartsOuter.multiple_lemmata_analysis_part_id" .
     " AND mlapartsOuter.lemma_id = lemmata.lemma_id " .
-    /// Eerst dit:     "GROUP BY multiple_lemmata_analysis_id) mla " .
-    /// Toch niet "GROUP BY multiple_lemmata_analysis_id, multiple_lemmata_analyses.part_number) mla " .
-    /// attestation_id erbij..??
+    /// First this:     "GROUP BY multiple_lemmata_analysis_id) mla " .
+    /// But not: "GROUP BY multiple_lemmata_analysis_id, multiple_lemmata_analyses.part_number) mla " .
+    /// Should we add attestation_id ?
     "GROUP BY multiple_lemmata_analysis_id, attestation_id) mla " .
     "ON (mla.multiple_lemmata_analysis_id" .
     " = analyzed_wordforms.multiple_lemmata_analysis_id) " .
@@ -1686,7 +1677,7 @@ function getAnalysesInCorpus($iWordFormId, $sMode, $iId) {
   else
     $sSelectQuery .= " AND token_attestations.document_id = $iId ";
   // We get as many rows as there are token attestations, but they are all the
-  // same...
+  // same
   $sSelectQuery .= "LIMIT 1";
   
   if( ($oResult = doSelectQuery($sSelectQuery) ) )
@@ -1752,8 +1743,8 @@ function getAnalysesInDb($iWordFormId) {
     " LEFT JOIN (SELECT analyzed_wordforms.analyzed_wordform_id," .
     "     CONCAT(IF(analyzed_wordforms.verified_by IS NULL, 0, 1), ',&nbsp;',".
     "              analyzed_wordforms.analyzed_wordform_id, ',&nbsp;',".
-    /// 2011-09-12: geen DISTINCT
-    /// "            GROUP_CONCAT(DISTINCT CONCAT(REPLACE(REPLACE(lemmata.modern_lemma, '>', '&gt;'), '<', '&lt;'), " .
+    // Changed:
+    // "            GROUP_CONCAT(DISTINCT CONCAT(REPLACE(REPLACE(lemmata.modern_lemma, '>', '&gt;'), '<', '&lt;'), " .
     "            GROUP_CONCAT(CONCAT(REPLACE(REPLACE(lemmata.modern_lemma, '>', '&gt;'), '<', '&lt;'), " .
 
     "    IF(myPatterns.normalized_wordform IS NULL, ''," .
@@ -1766,9 +1757,9 @@ function getAnalysesInDb($iWordFormId) {
     "               CONCAT(',&nbsp;', REPLACE(lemmata.gloss, ' ', '&nbsp;'))),".
     "                IF(languages.language IS NULL,".
     "                              '', CONCAT(',&nbsp;', languages.language)))".
-    ///
+    
     "                ORDER BY multiple_lemmata_analyses.part_number ASC" .
-    ///
+    
     "                SEPARATOR '&nbsp;&&nbsp;') ) mla".
     "          FROM analyzed_wordforms, multiple_lemmata_analyses,".
     "               multiple_lemmata_analysis_parts mlapartsOuter" .
@@ -1802,9 +1793,9 @@ function getAnalysesInDb($iWordFormId) {
     "          LEFT JOIN languages ON" .
     "                           (languages.language_id = lemmata.language_id)".
     "          WHERE analyzed_wordforms.lemma_id = 0" .
-    // Added 2011-07-14
+    
     "            AND analyzed_wordforms.wordform_id = $iWordFormId" .
-    //
+    
     "            AND analyzed_wordforms.multiple_lemmata_analysis_id" .
     "                = multiple_lemmata_analyses.multiple_lemmata_analysis_id".
     "         AND multiple_lemmata_analyses.multiple_lemmata_analysis_part_id".
@@ -1875,13 +1866,13 @@ function getTokenAttestations($iDocumentId, $iWordFormId, $iStartPos) {
 
     // LEFT JOIN for multiple lemmata analyses
     "(SELECT analyzed_wordforms.analyzed_wordform_id," .
-    " token_attestations.derivation_id," . // <-- Klopt dat wel bij multiples?!?
+    " token_attestations.derivation_id," . // <-- ToDo: We should check if this belongs here, speaking of multiples
     " token_attestations.start_pos," .
     " mla.analysesForSentence" .
     " FROM token_attestations, analyzed_wordforms " .
     "LEFT JOIN (SELECT multiple_lemmata_analyses.multiple_lemmata_analysis_id,"
-    /// 2011-09-12: Toch wel DISTINCT
-    /// . "  GROUP_CONCAT(DISTINCT " .
+    // Changed:
+    // . "  GROUP_CONCAT(DISTINCT " .
     . "  GROUP_CONCAT(" .
     "   CONCAT(REPLACE(REPLACE(REPLACE(lemmata.modern_lemma, '>', '&gt;'), '<', '&lt;'), ' ', '&nbsp;'), " .
 
@@ -1895,9 +1886,9 @@ function getTokenAttestations($iDocumentId, $iWordFormId, $iStartPos) {
     "      CONCAT(',&nbsp;', REPLACE(lemmata.gloss, ' ', '&nbsp;')))," .
     "   IF(languages.language IS NULL, ''," .
     "              CONCAT(',&nbsp;', languages.language)))".
-    ///
+    
     "   ORDER BY multiple_lemmata_analyses.part_number ASC" .
-    ///
+    
     "   SEPARATOR '&nbsp;&&nbsp;') analysesForSentence " .
     " FROM analyzed_wordforms, multiple_lemmata_analyses," .
     "      multiple_lemmata_analysis_parts mlapartsOuter" .
@@ -1938,9 +1929,9 @@ function getTokenAttestations($iDocumentId, $iWordFormId, $iStartPos) {
     "   = token_attestations.analyzed_wordform_id" .
     "  AND analyzed_wordforms.wordform_id = $iWordFormId" .
     "  AND mlapartsOuter.lemma_id = lemmata.lemma_id " .
-    /// Eerst dit: "GROUP BY multiple_lemmata_analysis_id) mla " .
-    /// Toch niet "GROUP BY multiple_lemmata_analysis_id, multiple_lemmata_analyses.part_number) mla " .
-    /// Wel met attestation_id erbij
+    // First this: "GROUP BY multiple_lemmata_analysis_id) mla " .
+    // and not: "GROUP BY multiple_lemmata_analysis_id, multiple_lemmata_analyses.part_number) mla " .
+    // But with attestation_id included
     "GROUP BY multiple_lemmata_analysis_id, attestation_id) mla " .
     /// 
     "ON (mla.multiple_lemmata_analysis_id" .
@@ -2109,14 +2100,14 @@ function getTokenAttestationsNarrowSet($aRowsData, $iWordFormId) {
 		// LEFT JOIN for multiple lemmata analyses
 		"(SELECT $iSentenceNr AS sentence_nr, ".
 		"analyzed_wordforms.analyzed_wordform_id," .
-		" token_attestations.derivation_id," . // <-- Klopt dat wel bij multiples?!?
+		" token_attestations.derivation_id," . // <-- ToDo: we should check if this belongs here, speaking of multiples
 		" token_attestations.start_pos," .
 		" token_attestations.end_pos," .
 		" mla.analysesForSentence" .
 		" FROM token_attestations, analyzed_wordforms " .
 		"LEFT JOIN (SELECT multiple_lemmata_analyses.multiple_lemmata_analysis_id,".
-		/// 2011-09-12: Toch wel DISTINCT
-		/// . "  GROUP_CONCAT(DISTINCT " .
+		// changed:
+		// . "  GROUP_CONCAT(DISTINCT " .
 		"  GROUP_CONCAT(" .
 		"   CONCAT(REPLACE(REPLACE(REPLACE(lemmata.modern_lemma, '>', '&gt;'), '<', '&lt;'), ' ', '&nbsp;'), " .
 
@@ -2130,9 +2121,9 @@ function getTokenAttestationsNarrowSet($aRowsData, $iWordFormId) {
 		"      CONCAT(',&nbsp;', REPLACE(lemmata.gloss, ' ', '&nbsp;')))," .
 		"   IF(languages.language IS NULL, ''," .
 		"              CONCAT(',&nbsp;', languages.language)))".
-		///
+		
 		"   ORDER BY multiple_lemmata_analyses.part_number ASC" .
-		///
+		
 		"   SEPARATOR '&nbsp;&&nbsp;') analysesForSentence " .
 		" FROM analyzed_wordforms, multiple_lemmata_analyses," .
 		"      multiple_lemmata_analysis_parts mlapartsOuter" .
@@ -2173,9 +2164,9 @@ function getTokenAttestationsNarrowSet($aRowsData, $iWordFormId) {
 		"   = token_attestations.analyzed_wordform_id" .
 		"  AND analyzed_wordforms.wordform_id = $iWordFormId" .
 		"  AND mlapartsOuter.lemma_id = lemmata.lemma_id " .
-		/// Eerst dit: "GROUP BY multiple_lemmata_analysis_id) mla " .
-		/// Toch niet "GROUP BY multiple_lemmata_analysis_id, multiple_lemmata_analyses.part_number) mla " .
-		/// Wel met attestation_id erbij
+		/// First this: "GROUP BY multiple_lemmata_analysis_id) mla " .
+		/// and not "GROUP BY multiple_lemmata_analysis_id, multiple_lemmata_analyses.part_number) mla " .
+		/// But with attestation_id included
 		"GROUP BY multiple_lemmata_analysis_id, attestation_id) mla " .
 		/// 
 		"ON (mla.multiple_lemmata_analysis_id" .
@@ -2200,7 +2191,8 @@ function getTokenAttestationsNarrowSet($aRowsData, $iWordFormId) {
   return false;
 }
 
-// 2011-0610: Klopt dit wel?!? Zie geen multiple lemmata analyses..?!?!?!?
+// ToDo: we should check if this function is ok, 
+// as multiple lemmata analyses seems not to be processed
 //
 // This one is called on loading the page to fill every 100/so many token
 // attestations in the top half of the screen
@@ -2304,7 +2296,7 @@ function getWordformIdsForGroups($iUserId, $aSelected, &$aVerificationValues){
 
 // This function is called when somebody (supposedly) updated the posInput
 // text box.
-// Some checking is done to see if there is anything actually there...
+// Some checking is done to see if there is anything actually there.
 function addTokenAttestations($iUserId, $iWordFormId,$sSelected, $sLemmaTuples,
 			      $bVerify) {
   printLog("Doing addTokenAttestations($iUserId, $iWordFormId, '$sSelected', ".
@@ -2339,8 +2331,7 @@ function addTokenAttestations($iUserId, $iWordFormId,$sSelected, $sLemmaTuples,
 	  // If the third argument has a value, it was group member
 	  if( isset($aAnalyzedWordFormIdDerivationId[2]) ) {
 	    array_push($aValues,
-		       "($aAnalyzedWordFormIdDerivationId[0], " .
-		       /// "$aAnalyzedWordFormIdDerivationId[1], " .
+		       "($aAnalyzedWordFormIdDerivationId[0], " .		       
 		       "$aAnalyzedWordFormIdDerivationId[2])");
 	    $aAnalyzedWordFormsToVerify[$aAnalyzedWordFormIdDerivationId[0]]=1;
 	  }
@@ -2348,8 +2339,7 @@ function addTokenAttestations($iUserId, $iWordFormId,$sSelected, $sLemmaTuples,
 	    // Token tuple: documentId,startPos,endPos
 	    foreach( $aSelected as $sTokenTuple ) {
 	      array_push($aValues,
-			 "($aAnalyzedWordFormIdDerivationId[0], " .
-			 /// "$aAnalyzedWordFormIdDerivationId[1], " .
+			 "($aAnalyzedWordFormIdDerivationId[0], " .			 
 			 "$sTokenTuple)");
 	      $aAnalyzedWordFormsToVerify[$aAnalyzedWordFormIdDerivationId[0]]
 		= 1;
@@ -2366,7 +2356,6 @@ function addTokenAttestations($iUserId, $iWordFormId,$sSelected, $sLemmaTuples,
     // as an attestation (even though this doesn't result in anything new)
     // without the query giving errors
     $sInsertQuery = "INSERT INTO token_attestations " .
-      ///      "(analyzed_wordform_id, derivation_id, document_id, start_pos, end_pos)".
       "(analyzed_wordform_id, document_id, start_pos, end_pos)".
       " VALUES " . implode(", ", $aValues) .
       " ON DUPLICATE KEY UPDATE document_id = document_id";
@@ -2382,7 +2371,7 @@ function addTokenAttestations($iUserId, $iWordFormId,$sSelected, $sLemmaTuples,
   }
 
   // Verify the token attestations.
-  // NOTE that this also happens when there are no token attestations...
+  // NOTE that this also happens when there are no token attestations.
   if( $bVerify ) {
     $sInsertQuery = "INSERT INTO token_attestation_verifications " .
       "(wordform_id, verified_by, verification_date, document_id, start_pos, ".
@@ -2432,23 +2421,20 @@ function insertMultipleLemmataAnalysis($iUserId, $iWordFormId, $aPartIds) {
   $iNrOfParts = count($aPartIds);
 
   $sExistsConditions = '';
-  //foreach ($aPartIds as $iPartId) {
+
   for($i = 0; $i < count($aPartIds); $i++) {
     $sExistsConditions .=
       " AND EXISTS (SELECT * FROM multiple_lemmata_analyses mla2" .
       "              WHERE mla2.multiple_lemmata_analysis_id = " .
-      "                                     mla.multiple_lemmata_analysis_id" .
-      ///
-      "                AND mla2.part_number = " . ($i + 1) . 
-      ///
-      "                AND mla2.multiple_lemmata_analysis_part_id = " .
-      ///"                                     $iPartId)";
+      "                                     mla.multiple_lemmata_analysis_id" .      
+      "                AND mla2.part_number = " . ($i + 1) .       
+      "                AND mla2.multiple_lemmata_analysis_part_id = " .      
       $aPartIds[$i] . ")";
   }
 
   // First see if it is in already for this wordform.
   // The query returns as many rows as there are parts in the analyses, so we
-  // LIMIT it to 1...
+  // LIMIT it to 1.
   $sSelectQuery = "SELECT analyzed_wordforms.analyzed_wordform_id " .
     "FROM analyzed_wordforms, multiple_lemmata_analyses mla " .
     // This is where the nr_of_parts column comes in handy
@@ -2456,8 +2442,9 @@ function insertMultipleLemmataAnalysis($iUserId, $iWordFormId, $aPartIds) {
     "   AND analyzed_wordforms.multiple_lemmata_analysis_id" .
     "  = mla.multiple_lemmata_analysis_id" .
     "   AND mla.nr_of_parts = $iNrOfParts" .
-    $sExistsConditions; /// . " LIMIT 1";
-  /// TK 2011-09-05: LIMIT is niet meer nodig met part_numbers erbij
+    $sExistsConditions; 
+	// . " LIMIT 1";
+    // LIMIT is not needed any longer, as part_numbers is included
 
   $iAnalyzedWordFormId = false;
   if( ($oResult = doSelectQuery($sSelectQuery) ) ) {
@@ -2556,7 +2543,6 @@ function getMultipleLemmataAnalysisId($aPartIds, $iNrOfParts) {
     $sComma = ", ";
     $sConditions .=
       " AND $sTableName.multiple_lemmata_analysis_part_id = $iPartId" .
-      // 2011-09-05: part_number erbij
       " AND $sTableName.part_number = $iPartNr";
     if( $iPartNr > 1) 
       $sConditions .= " AND $sTableName.multiple_lemmata_analysis_id =" .
@@ -2649,7 +2635,7 @@ function addTokenAttestations2($iUserId, $iWordFormId, $sTokenAttestations,
   }
 
   // Verify the token attestations.
-  // NOTE that this also happens when there are no token attestations...
+  // NOTE that this also happens when there are no token attestations.
   if( $bVerify ) {
     $sInsertQuery = "INSERT INTO token_attestation_verifications " .
       "(wordform_id, verified_by, verification_date, document_id, start_pos, ".
@@ -2676,7 +2662,7 @@ function expandForGroups($iUserId, $iAnalyzedWordFormId, $sGroupCondition1,
     if( $aRow = mysql_fetch_assoc($oResult) )
       $aAWFTuple = array($aRow['lemma_id'], $aRow['derivation_id'],
 			 $aRow['multiple_lemmata_analysis_id']);
-  if( ! $aAWFTuple ) // This shouldn't happen of course...
+  if( ! $aAWFTuple ) // This shouldn't happen of course.
     return false;
 
   // Get all wordformIds, docIds, onset, offsets for groupmembers
@@ -2763,7 +2749,7 @@ function deleteTokenAttestations($iId, $sMode, $iWordFormId, $sSelected) {
   // Token tuple: documentId, onset, offset
   foreach( $aSelected as $sTokenTuple ) {
     $aTokenTuple = explode(',', $sTokenTuple);
-    // Offset er nog bij..?!?
+    // ToDo: check if we need to add Offset here
     array_push($aConditions,
 	       "(token_attestations.document_id = $aTokenTuple[0] AND" .
 	       " token_attestations.start_pos = $aTokenTuple[1])");
@@ -2786,7 +2772,7 @@ function deleteTokenAttestations($iId, $sMode, $iWordFormId, $sSelected) {
   doNonSelectQuery($sDeleteGroupQuery);
 
   $sDeleteQuery;
-  /// Wat doet het verschil tussen corpus en file hier ertoe..?!? ///
+  // ToDo: check if the distinction between corpus and file makes any difference here
   if( $sMode == 'file') {
     $sDeleteQuery = "DELETE token_attestations.* ".
       "FROM token_attestations, analyzed_wordforms " .
@@ -2822,10 +2808,9 @@ function deleteTokenAttestations($iId, $sMode, $iWordFormId, $sSelected) {
   // But we do this later on separately
 }
 
-function verifyTokenAttestation(// $iDocumentId,
+function verifyTokenAttestation(
 				$sSelecteds,
 				$iWordFormId,
-				// $iStartPos, $iEndPos,
 				$iNewValue, $iUserId) {
   printLog("verifyTokenAttestation('$sSelecteds', $iWordFormId, $iNewValue, ".
 	   "$iUserId)\n");
@@ -2853,7 +2838,7 @@ function verifyTokenAttestation(// $iDocumentId,
 
     // NOTE that due to the ON DUPLICATE KEY UPDATE bit the attestation will
     // be verified by this user, even if it was verified by someone else
-    // before...
+    // before.
     $sQuery = "INSERT INTO token_attestation_verifications " .
       "(document_id, start_pos, end_pos, wordform_id, verified_by, " .
       "verification_date) " .
@@ -2984,7 +2969,7 @@ function deleteAnalysis($iWordFormId, $iAnalyzedWordFormId) {
   $sCondition;
 
   // First find out if the analysis we are deleting happens to be a
-  // multiple lemmata analysis or not...
+  // multiple lemmata analysis or not.
   $sSelectQuery = "SELECT lemma_id, multiple_lemmata_analysis_id " .
     "FROM analyzed_wordforms WHERE analyzed_wordform_id= $iAnalyzedWordFormId";
   if( ($oResult = doSelectQuery($sSelectQuery)) ) {
@@ -3050,7 +3035,7 @@ function deleteAnalysis($iWordFormId, $iAnalyzedWordFormId) {
 
       // Now, for every analyzed_wordform_id of these other words (word group
       // members), see if there are token attestations left for these analysis
-      // we are deleting here. If not, they may be deleted as well...
+      // we are deleting here. If not, they may be deleted as well.
       // So if 'Holland' happens to have another occurence (without 'Noord')
       // where it also is analysed as 'Noord-Amerika' we shouldn't delete that
       // one.
@@ -3236,7 +3221,7 @@ function getMultipleLemmaSuggestionsQuery($sHeadword, $sModernWordForm,
     $sSelectQuery .= " AND patterns ";
     if( ! $sPos)
       $sSelectQuery .= "LIKE '$sPatterns%'";
-    else // NOTE the ')]' which is there intentionally...
+    else // NOTE the ')]' which is there intentionally.
       $sSelectQuery .= "= '$sPatterns)]'";
   }
   else
@@ -3331,7 +3316,7 @@ function getSingleLemmaSuggestionsQuery($sHeadword, $sModernWordForm,
     $sSelectQuery .= " AND patterns ";
     if( ! $sPos)
       $sSelectQuery .= "LIKE '$sPatterns%'";
-    else // NOTE the ')]' which is there intentionally...
+    else // NOTE the ')]' which is there intentionally.
       $sSelectQuery .= "= '$sPatterns)]'";
   }
   else
@@ -3415,7 +3400,7 @@ function printLemmaSuggestions($sMenuMode, $sFirstPartOfMultiple,
 	    print
 	      " updatePosInput('$sTitleForPosInput');\" ";
 
-	//Just before printing... replace any <>'s modern wordforms by
+	// Just before printing... replace any <>'s modern wordforms by
 	// HTML entities
 	$sFirstPartOfMultiple =
 	  str_replace("<", "&lt;",
@@ -3514,8 +3499,8 @@ function printTokenAttSuggestions($iDocumentId, $iSentenceNr, $iWordFormId,
     "mla.mla multipleLemmataAnalysesInDb " .
     "FROM analyzed_wordforms " .
     "LEFT JOIN (SELECT analyzed_wordforms.analyzed_wordform_id," .
-    /// 2011-09-12: Geen DISTINCT
-    /// "        GROUP_CONCAT(DISTINCT CONCAT(REPLACE(REPLACE(lemmata.modern_lemma, '>', '&gt;'), '<', '&lt;'), " .
+    // Changed:
+    // "        GROUP_CONCAT(DISTINCT CONCAT(REPLACE(REPLACE(lemmata.modern_lemma, '>', '&gt;'), '<', '&lt;'), " .
     "        GROUP_CONCAT(CONCAT(REPLACE(REPLACE(lemmata.modern_lemma, '>', '&gt;'), '<', '&lt;'), " .
 
     "    IF(myPatterns.normalized_wordform IS NULL, ''," .
@@ -3527,9 +3512,9 @@ function printTokenAttSuggestions($iDocumentId, $iSentenceNr, $iWordFormId,
     "            IF(lemmata.gloss = '','',CONCAT(',&nbsp;',lemmata.gloss)),".
     "            IF(languages.language IS NULL," .
     "                              '', CONCAT(',&nbsp;', languages.language)))".
-    ///
+    
     "            ORDER BY multiple_lemmata_analyses.part_number ASC" .
-    ///
+    
     "            SEPARATOR '&nbsp;&&nbsp;') mla" .
     "      FROM analyzed_wordforms, multiple_lemmata_analyses," .
     "           multiple_lemmata_analysis_parts mlapartsOuter" .
@@ -3564,9 +3549,9 @@ function printTokenAttSuggestions($iDocumentId, $iSentenceNr, $iWordFormId,
     "      LEFT JOIN languages ON" .
     "                       (languages.language_id = lemmata.language_id)" .
     "      WHERE analyzed_wordforms.lemma_id = 0" .
-    // Added 2011-07-14
+
     "        AND analyzed_wordforms.wordform_id = $iWordFormId" .
-    //
+
     "        AND analyzed_wordforms.multiple_lemmata_analysis_id" .
     "            = multiple_lemmata_analyses.multiple_lemmata_analysis_id" .
     "      AND multiple_lemmata_analyses.multiple_lemmata_analysis_part_id" .
@@ -3609,7 +3594,7 @@ function printTokenAttSuggestions($iDocumentId, $iSentenceNr, $iWordFormId,
       $iRowNr++;
     }
   }
-  // New...
+  
   // NOTE that we (mis)use the title here to store the highest row number,
   // plus all the arguments needed for makeTokenAttSuggestionEditable
   print "<div id=newTokenAtt title=" . ($iRowNr-1) .
@@ -3679,12 +3664,7 @@ function tokenAttest($iUserId, $iWordFormId, $iAnalyzedWordFormId,
       "VALUES " . implode(',', $aInsertValues) .
       "ON DUPLICATE KEY UPDATE document_id = document_id";
     doNonSelectQuery($sInsertQuery);
-    
-    // If someone approved of a certain analysis, this analysis should be
-    // verified
-    /// verifyAnalyzedWfForTokenAtt($iUserId, $sVerifyCondition);
-    /// Nu beneden
-    
+       
     // Verify the analyses
     // NOTE that this is regardless of whether the token attestations are
     // being verified or not.
@@ -3870,7 +3850,7 @@ function printTokenAttestations($iDocumentId, $iSentenceNr, $iWordFormId,
   $oResult = getTokenAttestations($iDocumentId, $iWordFormId, $iStartPos);
   $oLastRow = 0;
   if( $oResult ) {
-    $aRows = false; // Otherwise you can't pass it by reference...
+    $aRows = false; // Otherwise you can't pass it by reference.
     print currentTokenAttestations($iSentenceNr, $oResult, $iStartPos,
 				   $iEndPos, $oLastRow, false, false,
 				   $aRows);
@@ -3893,14 +3873,14 @@ function currentTokenAttestations($iSentenceNr, $oResult, $iOnset, $iOffset,
     $aRows[$iSentenceNr]["index"] = "${iDocumentId}_$iSentenceNr";
   if( $oResult ) {
     while( ($aRow = getRow($oResult, $iOnset, $oLastRow)) ) {
-      // Sometimes the analysesForSentence column is NULL..?!?
+      // Sometimes the analysesForSentence column is NULL  (ToDo: check that)
       //if( strlen($aRow['analysesForSentence']) == 0)
       //	continue;
       if( $bBuildIndex) {
 	// If there is a quote at the start of the lemma, neglect it for the
 	// index (so "'s Hertogenbosch" -> "s Hertogenbosch").
 	// If we don't do that, they end up AFTER the words without analyses
-	// as digits come before the quote, alphabetically (apparently...).
+	// as digits come before the quote, alphabetically 
 	$sAnalysesForIndex = (substr($aRow['analysesForSentence'], 0, 1) == "'")
 	  ? substr($aRow['analysesForSentence'], 1)
 	  : $aRow['analysesForSentence'];
@@ -4039,7 +4019,8 @@ function newCorpus($sDatabase, $sNewCorpusName) {
     mysql_free_result($oResult);
   }
   
-  // 2013: If we are using full database mode (=no physical files)
+  // Since 2013 version: 
+  // If we are using full database mode (=no physical files)
   // than insert a new column into the documents table to enable file storage there [do that if it doesn't exist yet (upgrade)]
   // And also create a table to keep copies of the original files and
   // of the freshly generated tokenized files (t.i. original state before edition by user) [do that if it doesn't exist yet (upgrade)]
@@ -4106,7 +4087,7 @@ function removeCorpus($sDatabase, $iCorpusId) {
   }
   
   
-  // No need to do all the queries when there is no result...
+  // No need to do all the queries when there is no result.
   if(strlen($sDocumentIds))
     deleteFilesFromDb($sDatabase, $sDocumentIds);
 
@@ -4132,7 +4113,7 @@ function showCorpusFiles($sDatabase, $iUserId, $sUserName, $iCorpusId) {
     "<form style='margin: 0px;' enctype=\"multipart/form-data\"" .
     " action=\"./lexiconTool.php\" method=POST>" .
     // "<input type=hidden name=MAX_FILE_SIZE value=10000000>" .
-    // Not needed, I think. It is handled in the php.ini file (08 mar 2011)
+    // Not needed anymore as it is handled in the php.ini file 
     "<input type=hidden name=sDatabase value='$sDatabase'>" .
     "<input type=hidden name=sUserName value='$sUserName'>" .
     "<input type=hidden name=iUserId value=$iUserId>" .
@@ -4151,7 +4132,7 @@ function showCorpusFiles($sDatabase, $iUserId, $sUserName, $iCorpusId) {
   if( ($oResult = doSelectQuery($sSelectQuery)) ) {
     while( ($aRow = mysql_fetch_assoc($oResult)) ) {
       // NOTE that we don't display the document root, which is always the
-      // same...
+      // same.
       $sDisplayName =
 	substr($aRow['title'], strlen($GLOBALS['sDocumentRoot']) + 1);
       print "<div class=corpusFile id=corpusFile_" . $aRow['document_id'].'>'.
@@ -4180,7 +4161,8 @@ function showCorpusFiles($sDatabase, $iUserId, $sUserName, $iCorpusId) {
 
 
 
-// BEWARE 2013: THIS FUNCTION IS NOT BEING USED ANY MORE (MF: as far as I can see)
+// ToDo: this function seems not to be in use anymore, double check that.
+//
 // We don't check whether the variables have legal values.
 // The Javascript/HTML interface should have taken care of that.
 function makeNewCorpus($sCorpusName, $aDocumentIds) {
@@ -4254,7 +4236,7 @@ function addFileToCorpus($sDatabase, $iCorpusAddedTo, $sNewFile, $sAuthor) {
   insertDocumentInTokenDb($sNewFile, $iCorpusAddedTo);
 
   // Else, it was not in the database for this corpus
-  if( $iDocumentId != -1 ) { // But if it was in the database...
+  if( $iDocumentId != -1 ) { // But if it was in the database.
     $sInsertQuery =
       "INSERT INTO corpusId_x_documentId (corpus_id, document_id)" .
       "VALUES($iCorpusAddedTo, $iDocumentId) " . 
@@ -4271,7 +4253,7 @@ function addFileToCorpus($sDatabase, $iCorpusAddedTo, $sNewFile, $sAuthor) {
   
   if (fullDatabaseMode($sDatabase)){
 
-      // 2013: read the content of the file to be inserted
+      // Read the content of the file to be inserted
   	  // tokenized file
   	  $sDocContent = readFileContent($sNewFile);
 	  // original uploaded file
@@ -4411,13 +4393,13 @@ function unlinkFile($sDocumentPath) {
 		// Now, it could be, when the file was uploaded in a zip-file, that the
 		// folder it is in is now empty.
 		// In that case, we can delete the entire folder. And possibly the folder
-		// that folder was contained in, etc...
+		// that folder was contained in, etc.
 		preg_match_all("/([^\/]+)\//", $sDocumentPath, $aMatches, PREG_SET_ORDER);
 
 		// First we determine which folders are relevant to check, then we go
 		// through them from last to first (because deleting the last folder may
 		// result in its parent-folder becoming empty, which can then also
-		// be deleted, etc...).
+		// be deleted, etc.).
 		$sPreviousPath = '/'; // It must be absolute paths!
 		$bAddForDeletion = false;
 		$aCheckForDeletion = array();
@@ -4507,7 +4489,7 @@ function deleteFilesFromDb($sDatabase, $sDocumentIds) {
   doNonSelectQuery($sDeleteQuery);
 
   // NOTE that it is possible that analyzed wordforms exist which are not
-  // associated with any document (anymore)...
+  // associated with any document (anymore).
 }
 
 // read the content of a document, given its title (=absolute path)
@@ -4687,7 +4669,6 @@ function getGroupOnOffsets($iDocumentId, $iWordFormId,
     // On with the main query
     " WHERE groupMembers.wordform_group_id = currentWords.wordform_group_id" .
     "   AND groupMembers.onset != currentWords.onset" .
-    // 04 march 2011
     // Next GROUP BY caused trouble when the same group was to be
     // displayed more than once (e.g. because a word appeared twice in it).
     //    " GROUP BY groupMembers.onset" .
@@ -4748,11 +4729,11 @@ function addToGroup($iUserId, $iDocumentId, $iHeadWordOnset, $iHeadWordOffset,
       $iNewWordFormId = $aRow['wordform_id'];
     mysql_free_result($oResult);
   }
-  if( ! $iNewWordFormId) // That would be strange, but well...
+  if( ! $iNewWordFormId) // That would be strange
     return false;
 
   // Insert all analyzed wordforms that the headword has for this new word
-  /// Adding awf.part_of_speech..?!?
+  // ToDo: a question is, should we be adding awf.part_of_speech?
   $sInsertQuery = "INSERT INTO analyzed_wordforms " .
     "(wordform_id, part_of_speech, derivation_id, lemma_id, " .
     " multiple_lemmata_analysis_id, verified_by, verification_date) " .
@@ -4792,9 +4773,9 @@ function addToGroup($iUserId, $iDocumentId, $iHeadWordOnset, $iHeadWordOffset,
   // propagated to all the group members.
 
   // Get all token_attestations that the new group member has (which could
-  // include the new one(s) of the previous step, but wel...)
+  // include the new one(s) of the previous step)
   $sInsertValues = $sSeparator = '';
-  /// Adding awf.part_of_speech..?!?
+  // ToDo: a question is, should we be adding awf.part_of_speech?
   $sSelectQuery =
     "SELECT lemma_id, analyzed_wordforms.part_of_speech, " .
     "       analyzed_wordforms.derivation_id, " .
@@ -4861,8 +4842,7 @@ function addToGroup($iUserId, $iDocumentId, $iHeadWordOnset, $iHeadWordOffset,
 	//           ],
 	//  ...
 	// ]
-	//$sTuple = $aTokenAttTuple[0] . ", " . $aTokenAttTuple[1]. ", " .
-	// $aTokenAttTuple[2];
+
 	$sTuple = $aRow['document_id'] . ", " . $aRow['onset'] . ", " .
 	  $aRow['offset'];
 	if( ! isset($aTokenAtts[$aRow['wordform_id']]) )
@@ -5129,7 +5109,7 @@ function cwUpdateDatabase($iUserId, $aChanges, $aNewWordForms, $iOldWordFormId,
   // Token attestations
   if(count($aNewWordForms) == 1) // No token split
     cwSingleWord($iUserId, $iOldWordFormId,
-		 // NOTE the stupid trick to get the one new wf id.
+		 // NOTE the trick to get the one new wf id.
 		 $aNewWordFormIds[$aNewWordForms[0]], $aChanges);
   else // There was a token split
     cwMultiWordTokenAttestations($iUserId, $iOldWordFormId, $aChanges,
@@ -5155,7 +5135,7 @@ function cwUpdateTokens_tokenAttestations($aChanges, $aNewOnsetOffsets,
   $aTokenUpdateQueries_offset = array();
 
   // NOTE that we don't do CASE statements anymore because they are SLOW.
-  // In stead we do multiple updates of the tables which is still quicker
+  // Instead we do multiple updates of the tables which is still quicker
   // in case of large tables.
   // So, we always use $aChange[0][1].
   foreach($aChanges as $iDocId => $aChange) {
@@ -5181,46 +5161,14 @@ function cwUpdateTokens_tokenAttestations($aChanges, $aNewOnsetOffsets,
 	"SET offset = offset + " . $aChange[0][1] .
 	" WHERE document_id = $iDocId" .
 	"  AND lexicon_database_id = " . $GLOBALS['iTokenDbDatabaseId']	.
-	"  AND onset >= " . ($aChange[$i][0] + $iPreviousOffsetChange); // >=
-      /*
-      if( ($i + 1) < $iAmountOfChanges) {
-	// NOTE that we check the start_pos/onset in both cases...
-	$sTokenAttUpdateQuery_startPos .=
-	  " AND start_pos <= " . ($aChange[$i + 1][0] + $iPreviousOffsetChange);
-	$sTokenAttUpdateQuery_endPos .= 
-	  " AND start_pos < " . ($aChange[$i + 1][0] + $iPreviousOffsetChange);
-	$sTokenUpdateQuery_onset .=
-	  " AND onset <= " . ($aChange[$i + 1][0] + $iPreviousOffsetChange);
-	$sTokenUpdateQuery_offset .=
-	  " AND onset < " . ($aChange[$i + 1][0] + $iPreviousOffsetChange);
-      }
-      */
+	"  AND onset >= " . ($aChange[$i][0] + $iPreviousOffsetChange); 
 
       array_push($aTokenAttUpdateQueries_startPos,
 		 $sTokenAttUpdateQuery_startPos);
       array_push($aTokenAttUpdateQueries_endPos, $sTokenAttUpdateQuery_endPos);
-      /*
-      array_push($aTokenAttUpdateQueries_endPos,
-		 /// NOTE: we always take the first offset change here
-		 /// (which is just the difference in length between the two)
-		 "SET end_pos = end_pos + " . $aChange[0][1] . 
-		 " WHERE document_id = $iDocId AND start_pos = " .
-		 ($aChange[$i][0] + $iPreviousOffsetChange)
-		 );
-      */
 
       array_push($aTokenUpdateQueries_onset, $sTokenUpdateQuery_onset);
       array_push($aTokenUpdateQueries_offset, $sTokenUpdateQuery_offset);
-      /*
-      array_push($aTokenUpdateQueries_offset,
-		 "UPDATE " . getTheRightTokenDatabase() . ".tokens " .
-		 "SET offset = offset + " . $aChange[0][1] . 
-		 " WHERE document_id = $iDocId" .
-		 "  AND lexicon_database_id = " .
-		 $GLOBALS['iTokenDbDatabaseId'] .
-		 "  AND onset = " . ($aChange[$i][0] + $iPreviousOffsetChange)
-		 );
-      */
 
       $sDeleteClauses .=
 	"$sOr(document_id = $iDocId AND onset = " . $aChange[$i][0] . ")";
@@ -5340,7 +5288,7 @@ function cwMultiWordTokenAttestations($iUserId, $iOldWordFormId, $aChanges,
 // The we delete the current token attestations and add the new ones.
 //
 // NOTE that this is all remarkably like cwSingleWord, but slightly
-// different...
+// different.
 function cwPropagateGroupAnalyses($iUserId, $iDocId, $iOnset,
 				  $aNewWordFormIds, $aNewOnsetOffsets,
 				  $bFirstOne, $iOffsetChange) {
@@ -5367,11 +5315,6 @@ function cwPropagateGroupAnalyses($iUserId, $iDocId, $iOnset,
   $aVerificationValues = array();
   if( ($oResult = doSelectQuery($sSelectQuery)) ) {
     while( ($aRow = mysql_fetch_assoc($oResult)) ) {
-      /*
-      $sTokenAttValue = "'" . $aRow['part_of_speech'] . "' " .
-	$aRow['lemma_id'] . " " . $aRow['multiple_lemmata_analysis_id'] . " " .
-	$aRow['derivation_id'];
-      */
 	
       // Keep it unique
       foreach($aNewWordFormIds as $sNewWordForm => $iNewWordFormId) {
@@ -5406,7 +5349,7 @@ function cwPropagateGroupAnalyses($iUserId, $iDocId, $iOnset,
     "verification_date) VALUES " .
     join(', ', array_keys($aAnalyzedWfInsertValues)) .
     " ON DUPLICATE KEY UPDATE analyzed_wordform_id = analyzed_wordform_id";
-  /// printLog("cwMultiWordTokenAttestations: $sInsertQuery\n");
+
   doNonSelectQuery($sInsertQuery);
 
   // Get (all) the new analyzed_wordform_id's
@@ -5434,12 +5377,12 @@ function cwPropagateGroupAnalyses($iUserId, $iDocId, $iOnset,
   // verifications
   $sDeleteQuery = "DELETE FROM token_attestations " .
     "WHERE document_id = $iDocId AND start_pos = $iOnset";
-  ///printLog("cwMultiWordTokenAttestations: $sDeleteQuery\n");
+
   doNonSelectQuery($sDeleteQuery);
 
   $sDeleteQuery = "DELETE FROM token_attestation_verifications " .
     "WHERE document_id = $iDocId AND start_pos = $iOnset";
-  ///printLog("cwMultiWordTokenAttestations: $sDeleteQuery\n");
+
   doNonSelectQuery($sDeleteQuery);
 
   // Add the new ones
@@ -5457,7 +5400,7 @@ function cwPropagateGroupAnalyses($iUserId, $iDocId, $iOnset,
       if($bFirstOne) {
 	// Original onset, new offset
 	$sInsertValues .= "(" . $aNewAnalyzedWf[0] .
-	  // ", " . $aNewAnalyzedWf[1] .
+
 	  ", $iDocId, $iOnset, " . $aNewOnsetOffsets[$iIndex][1] . ")";
 	$bFirstOne = FALSE;
       }
@@ -5488,7 +5431,7 @@ function cwPropagateGroupAnalyses($iUserId, $iDocId, $iOnset,
 }
 
 // NOTE that this is all remarkably like cwPropagateGroupAnalyses, but
-// slightly different...
+// slightly different.
 // We don't update any onsets/offsets just yet. This is done later separately.
 function cwSingleWord($iUserId, $iOldWordFormId, $iNewWordFormId,
 		      $aChanges) {
@@ -5524,120 +5467,7 @@ function cwSingleWord($iUserId, $iOldWordFormId, $iNewWordFormId,
     " WHERE wordform_id = $iOldWordFormId" .
     "   AND ($sUpdateCondition)";
   doNonSelectQuery($sUpdateQuery); 
-  
-  /*
-  $sCondition = $sOr = '';
-  foreach($aChanges as $iDocId => $aChange) {
-    for($i=0; $i < count($aChange); $i++ ) {
-      $sCondition .= "$sOr(token_attestations.document_id = $iDocId " .
-	"AND token_attestations.start_pos = " . $aChange[$i][0] . ")";
-      $sOr = " OR ";
-    }
-  }
-
-  // Get the token attestations
-  $sSelectQuery =
-    "SELECT token_attestations.document_id, token_attestations.start_pos, " .
-    "token_attestations.end_pos, " .
-    "analyzed_wordforms.analyzed_wordform_id, " .
-    "analyzed_wordforms.derivation_id, analyzed_wordforms.part_of_speech, " .
-    "analyzed_wordforms.lemma_id, multiple_lemmata_analysis_id " .
-    "  FROM analyzed_wordforms, token_attestations" .
-    " WHERE analyzed_wordforms.analyzed_wordform_id" .
-    "  = token_attestations.analyzed_wordform_id AND ($sCondition)";
-
-  $sInsertValues = $sComma = '';
-  $aTokenAttClauses = array();
-  $aTokenAtts = array();
-  $aVerificationClauses = array();
-  if( ($oResult = doSelectQuery($sSelectQuery)) ) {
-    while( ($aRow = mysql_fetch_assoc($oResult)) ) {
-      // For deleting, only the document id and start pos are relevant
-      // but this combination can occur more often, as there can be more token
-      // attestations for a token.
-      // We make a hash of them to keep it unique (just to be tidy...).
-      $aTokenAttClauses["(document_id = " . $aRow['document_id'] . " AND "
-			. "start_pos = " . $aRow['start_pos'] . ")"] = 1;
-
-      $sTokenAttKey = $aRow['document_id'] . ', ' . $aRow['start_pos'] . ', ' .
-	$aRow['end_pos'];
-      $sTokenAttValue = "'" . $aRow['part_of_speech'] . "' " .
-	$aRow['lemma_id'] . " " . $aRow['multiple_lemmata_analysis_id'] . " " .
-	$aRow['derivation_id'];
-      if(array_key_exists($sTokenAttKey, $aTokenAtts))
-	array_push($aTokenAtts[$sTokenAttKey], $sTokenAttValue);
-      else
-	$aTokenAtts[$sTokenAttKey] = array($sTokenAttValue);
-	
-      $aVerificationClauses["(document_id = " . $aRow['document_id'] .
-			    " AND start_pos = " . $aRow['start_pos'] . ")"]= 1;
-    }
-    mysql_free_result($oResult);
-  }
-
-  // If there were no token attestations, we can quit.
-  if( ! count($aVerificationClauses))
-    return;
-
-  // Get (all) the new analyzed_wordform_id's
-  // So that is potentially too many
-  // NOTE that the tokenAttValue column is exactly the same as the
-  // $sTokenAttValue above
-  $sSelectQuery = "SELECT analyzed_wordform_id, derivation_id, " .
-    "CONCAT('\'', part_of_speech, '\' ', lemma_id, ' '," .
-    "multiple_lemmata_analysis_id, ' ', derivation_id) AS tokenAttValue" .
-    " FROM analyzed_wordforms WHERE wordform_id = $iNewWordFormId";
-
-  $aNewAnalyzedWfIds = array();
-  if( ($oResult = doSelectQuery($sSelectQuery)) ) {
-    while( ($aRow = mysql_fetch_assoc($oResult)) ) {
-      $aNewAnalyzedWfIds[$aRow['tokenAttValue']] =
-	array($aRow['analyzed_wordform_id'], $aRow['derivation_id']);
-    }
-    mysql_free_result($oResult);
-  }
-
-  printLog("New analyseds:\n");
-  foreach($aNewAnalyzedWfIds as $sTknAttVl => $aArr) {
-    printLog("\t$sTknAttVl => " . $aArr[0] . ", " . $aArr[1] . "\n");
-  }
-
-  // Now delete the current token attestations on these spots, plus any
-  // verifications
-  $sDeleteClause = join(' OR ', array_keys($aTokenAttClauses));
-  $sDeleteQuery = "DELETE FROM token_attestations WHERE $sDeleteClause";
-  /// printLog("cwSingleWord: $sDeleteQuery\n");
-  doNonSelectQuery($sDeleteQuery);
-
-  // Add the new ones
-  //
-  // NOTE that we add them with the original onset/ofsets. These will be
-  // updated later on, if needed, in one go with the rest of the token
-  // attestations for this file.
-  $sInsertValues = $sComma = '';
-  foreach($aTokenAtts as $sTokenAttKey => $aTokenAttValues) {
-    printLog("Key: $sTokenAttKey\n");
-    foreach($aTokenAttValues as $sTokenAttValue ) {
-      printLog("   Values: $sTokenAttValue\n");
-      $sInsertValues .= "$sComma(" . $aNewAnalyzedWfIds[$sTokenAttValue][0] .
-	", " . $aNewAnalyzedWfIds[$sTokenAttValue][1] . ", $sTokenAttKey)";
-      $sComma = ", ";
-    }
-  }
-
-  $sInsertQuery = "INSERT INTO token_attestations " .
-    "(analyzed_wordform_id, derivation_id, document_id, start_pos, end_pos) " .
-    "VALUES $sInsertValues";
-  doNonSelectQuery($sInsertQuery);
-
-  // Also, verify the new token attestation(s)
-  // We leave to onsets/offsets as they are at the moment.
-  $sUpdateQuery = "UPDATE token_attestation_verifications " .
-    "SET wordform_id = $iNewWordFormId, verified_by = $iUserId," .
-    " verification_date = NOW() " .
-    "WHERE " . join(" OR ", array_keys($aVerificationClauses));
-  doNonSelectQuery($sUpdateQuery);
-  */
+   
 }
 
 // This function is called to copy all analyzed wordforms for one word
@@ -5691,8 +5521,7 @@ function cwCopyAnalyzedWordForms($iUserId, $iOldWordFormId, $iNewWordFormId) {
 }
 
 function cwGetNewWordFormIds($aNewWordForms, &$aNewOnsetOffsets) {
-  /// printLog("Doing cwGetNewWordFormIds()\n");
-
+  
   // Don't bother checking first, just insert them all right away
   $sCondition = $sInsertValues = $sOr = $sComma = '';
   $aWordFormFrequencies = array();
@@ -5739,7 +5568,7 @@ function cwGetNewWordFormIds($aNewWordForms, &$aNewOnsetOffsets) {
 }
 
 // NOTE that this goes wrong when a word form is changed into multiple instances
-// of itself...!!!
+// of itself
 // So e.g: 'a' -> 'a|a'.
 function cwUpdateTypeFrequencies_dontShows($iOldWordFormId, $aNewWordFormIds,
 					   $aWordFormFrequencies, $aChanges) {
@@ -5753,7 +5582,7 @@ function cwUpdateTypeFrequencies_dontShows($iOldWordFormId, $aNewWordFormIds,
     foreach( $aNewWordFormIds as $sNewWordForm => $iNewWordFormId ) {
       // It could be the case that the new word(s) consists of the old word
       // and another one. In that case we shouldn't throw away entries for
-      // the old word later on...
+      // the old word later on.
       if( $iNewWordFormId == $iOldWordFormId) {
 	$bKeepWordform = TRUE; // Used later on
 	$bKeep = TRUE; // Used only in this loop
@@ -5822,7 +5651,7 @@ function cwUpdateTypeFrequencies_dontShows($iOldWordFormId, $aNewWordFormIds,
       
       // The same for the dont_shows
       // DO NOTE however that any corpus-wide dont_show options will not be
-      // deleted....
+      // deleted.
       $sDeleteQuery = "DELETE FROM dont_show " .
 	"WHERE wordform_id = $iOldWordFormId AND ($sDeleteClause)";
       doNonSelectQuery($sDeleteQuery);
@@ -5834,7 +5663,7 @@ function cwUpdateTypeFrequencies_dontShows($iOldWordFormId, $aNewWordFormIds,
 // onset/offset (so this function is only called when there *is* indeed a new
 // onset/offset.
 function cwUpdateWordFormGroups($aChanges) {
-  /// $sOnsetCases = $sOffsetCases = '';
+
   $sUpdateQuery_onset = $sUpdateQuery_offset = 0;
   $aUpdateQueries_onset = array();
   $aUpdateQueries_offset = array();
@@ -5854,14 +5683,7 @@ function cwUpdateWordFormGroups($aChanges) {
       $sUpdateQuery_offset = "UPDATE wordform_groups SET offset = offset + " .
 	$aChange[0][1] . " WHERE document_id = $iDocId AND onset >= " .
 	($aChange[$i][0] + $iPreviousOffsetChange);
-      /*
-      if( ($i + 1) < $iAmountOfChanges) {
-	$sUpdateQuery_onset .=
-	  " AND onset <= " . ($aChange[$i + 1][0] + $iPreviousOffsetChange);
-	$sUpdateQuery_offset .=
-	  " AND onset < " . ($aChange[$i + 1][0] + $iPreviousOffsetChange);
-      }
-      */
+
       array_push($aUpdateQueries_onset, $sUpdateQuery_onset);
       array_push($aUpdateQueries_offset, $sUpdateQuery_offset);
 
@@ -6115,8 +5937,6 @@ function getLastView($iWordFormId) {
 
 
 
-
-
 // get list of wordforms which are not lemmatized at all
 function getUnlemmatizedWordforms($sDatabase){
 
@@ -6132,17 +5952,6 @@ function getUnlemmatizedWordforms($sDatabase){
 		"ON tf.wordform_id = awf.wordform_id ".
 		"WHERE awf.wordform_id IS NULL ".
 		"ORDER BY wf.wordform;";
-
-	// this query is as good as the previous one, but slower
-	//$sQuery = "SELECT wf.wordform_id, wf.wordform ".
-	//	"FROM ".
-	//	"analyzed_wordforms awf ".
-	//	"RIGHT JOIN ".
-	//	"wordforms wf ".
-	//	"ON awf.wordform_id = wf.wordform_id ".
-	//	"WHERE awf.wordform_id IS NULL ".
-	//	"AND wf.wordform_id IN (SELECT wordform_id FROM type_frequencies) ".
-	//	"ORDER BY wf.wordform;";
 		
 	$oResult = doSelectQuery($sQuery);
 		
@@ -6229,29 +6038,12 @@ function printLog($sString) {
 if( $GLOBALS['sLogFile'] ) {  
     $fh = fopen($GLOBALS['sLogFile'], 'a');
     // Next line is there because PHP version 5.3 and up require it.
-    // You are supposed to also be able to set it in php.ini but it somehow
-    // wouldn't work...
+    // You are supposed to also be able to set it in php.ini but it 
+    // doesn't work.
     date_default_timezone_set("Europe/Amsterdam");
     fwrite($fh, date("\n-----\n\nY-m-d H:i:s\n") . "\t" . $sString);
     fclose($fh);
    }
-
-//  if (  (isset($_REQUEST['iUserId']) && $_REQUEST['iUserId'] == $GLOBALS['iTesterId'])
-//		!isset($_REQUEST['iUserId'])
-//  )
-//  {
-//  if( $GLOBALS['sLogFile'] ) {
-//	print "file: ".$GLOBALS['sLogFile'];
-  
-//    $fh = fopen($GLOBALS['sLogFile'], 'a');
-    // Next line is there because PHP version 5.3 and up require it.
-    // You are supposed to also be able to set it in php.ini but it somehow
-    // wouldn't work...
-//    date_default_timezone_set("Europe/Amsterdam");
-//    fwrite($fh, date("\n-----\n\nY-m-d H:i:s\n") . "\t" . $sString);
-//    fclose($fh);
-//   }
-//  }
 
   
 }

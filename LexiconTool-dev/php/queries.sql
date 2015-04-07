@@ -1,5 +1,5 @@
 --
--- Klad file om queries in te editten...
+-- File to design queries ...
 --
 
 

@@ -7,7 +7,7 @@ sub new {
   my $self = \%hOptions;
   bless $self, $class;
 
-  # Initialise something?!?
+  # Initialise 
   $self->{bInWordTag} = undef;
   $self->{bInAnalysisTag} = undef;
   $self->{bInBinTag} = undef;
@@ -19,7 +19,6 @@ sub new {
 sub atStartOfFile {
   my ($self) = @_;
 
-  #print ">> At start of file\n";
 }
 
 # This one is called when a tag has been read completely
@@ -62,7 +61,7 @@ sub atText {
       "\t" . $hrText->{sText} . "\t" . $self->{sYear};
   }
   elsif( $self->{bInBinTag} ) {
-    # We gaan er vanuit dat er altijd een jaar is.
+    # We assume we always have a year.
     $self->{sYear} = $hrText->{sText};
   }
 }
@@ -75,8 +74,6 @@ sub setOutputFileHandle {
 
 sub atEndOfFile {
   my ($self) = @_;
-
-  # print ">> At end of file\n";
 }
 
 1;

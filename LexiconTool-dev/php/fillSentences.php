@@ -7,7 +7,7 @@ chooseDb($_REQUEST['sDatabase']);
 $sSelectedSentences = isset($_REQUEST['sSelectedSentences']) ?
  $_REQUEST['sSelectedSentences'] : '';
 
-// Convert too boolean again if necassary
+// Convert too boolean again if necessary
 $sSortSentencesBy =
 ($_REQUEST['sSortSentencesBy'] == 'false') ? false
 : $_REQUEST['sSortSentencesBy'];

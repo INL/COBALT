@@ -7,7 +7,7 @@ sub new {
   my $self = \%hOptions;
   bless $self, $class;
 
-  # Initialise something?!?
+  # Initialise 
   $self->{bInContentTag} = undef;
 
   return $self;
@@ -22,7 +22,7 @@ sub atStartOfFile {
 # This one is called when a tag has been read completely
 sub atTag {
   my ($self, $hrTag) = @_;
- # print "Tag: '$hrTag->{sTagName}'; \n";
+
   if( $hrTag->{sTagName} eq 'w:t' || $hrTag->{sTagName} eq 'w:pPr' || $hrTag->{sTagName} eq 'w:pStyle'){
 	if($hrTag->{sTagName} eq 'w:pStyle'){
 		print "[$hrTag->{hrAttributes}->{'w:val'}]\n";
@@ -40,9 +40,9 @@ sub atText {
   my ($self, $hrText) = @_;
 
   if($self->{bInContentTag} ) {
-    # We tellen eentje op bij de iEndPos zodat de checkOnsetOffsets.pl klopt.
-    # Maar eigenlijk wijst iOffset dus naar het laatste karakter van de string
-    # (en niet eentje daarna).
+    # We add 1 to iEndPos, in such a way that checkOnsetOffsets.pl is right.
+    # But actually iOffset indicates the final character of a string
+    # (and not one character ahead of it).
     print "Text: '$hrText->{sText}'\n";
   }
 }

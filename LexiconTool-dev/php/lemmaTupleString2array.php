@@ -80,7 +80,7 @@ function lemmaTupleString2array($sLemmaTuple, $sMode, $bVerbose) {
 * State 5: gloss
 *
 * State 6: in-between state after the headword is read
-* State 7: in between state after modern wordfrom is read
+* State 7: in-between state after modern wordfrom is read
 * State 8: for after a modern wordform is read
 * State 9: for after a patterns is read
 * State 10: first pattern part
@@ -89,7 +89,7 @@ function lemmaTupleString2array($sLemmaTuple, $sMode, $bVerbose) {
 *
 *******************************************************************************/
 
-// NOTE in all the state<n> functions the & before the lemma tuple which
+// NOTE in all the state<n> functions the '&' before the lemma tuple which
 // hopefully prevents it from being copied all the time (as in C)
 //
 // The other &'s are there because the values can change in the function
@@ -217,7 +217,7 @@ function state4(&$iState, &$sLemmaTuple, $i, &$iStart, &$iEnd, &$aLemma,
 	$iEnd = $i;
       }
     }
-    /// stond nog een 'else' hier...
+    
     if( $iStart == -1)
       return false;
 
@@ -303,12 +303,6 @@ function state7(&$iState, &$sLemmaTuple, $i, &$iStart, &$iEnd, &$aLemma,
 		$sMode, $bVerbose) {
   if( $bVerbose )
     print "State 7 ($sLemmaTuple[$i], $iStart, $iEnd)\n";
-
-  /* weg 
-  if( $i == $GLOBALS['iLastChar'])
-    return false;
-  }
-  else */
 
   if( $sLemmaTuple[$i] == ' ') // Neglect leading spaces
     return ( $i == $GLOBALS['iLastChar'] ) ? false : true;

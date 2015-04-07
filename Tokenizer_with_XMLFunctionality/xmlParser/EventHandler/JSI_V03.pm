@@ -11,7 +11,10 @@ sub new {
   bless $self, $class;
 
   # Initialise
-  ### $self->{bInBodyTag} = undef; We don't care about this anymore in V0.3
+  
+  # commented out, as we don't care about body tags anymore in V0.3
+  # $self->{bInBodyTag} = undef; 
+  
   $self->{bInWTag} = undef;
   $self->{bInPcTag} = undef;
   $self->emptyToken();
@@ -43,14 +46,6 @@ sub setOutputFileHandle {
 sub atTag {
   my ($self, $hrTag) = @_;
 
-  ### Body tags are not relevant anymore in V0.3
-  # if( $hrTag->{sTagName} eq "body" ) {
-  #   $self->{bInBodyTag} = 1;
-  # }
-  # elsif( $hrTag->{sTagName} eq "/body" ) {
-  #   $self->{bInBodyTag} = undef;
-  # }
-  # els
   if( $hrTag->{sTagName} eq "pc" ) {
     $self->{bInPcTag} = 1;
   }
@@ -74,7 +69,7 @@ sub atText {
 
   ### No body tags anymore in V0.3
   $self->fillToken($hrText)
-###    if($self->{bInBodyTag} && ( $self->{bInWTag} || $self->{bInPcTag}) );
+
     if( $self->{bInWTag} || $self->{bInPcTag} );
 }
 

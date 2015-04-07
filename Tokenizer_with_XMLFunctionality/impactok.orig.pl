@@ -51,18 +51,12 @@
 
 use strict;
 use HTML::Entities;
-### TK 17 aug 2009
-### $opt_e wordt kennelijk niet meer ondersteund...
-### En verder komt de newline swith ($opt_r) nergens meer voor...
-### use vars qw($opt_b $opt_e $opt_r $opt_l $opt_d $opt_f);
 use vars qw($opt_b $opt_r $opt_l $opt_d $opt_f);
 use Getopt::Std;
 
 ############ Options / Parameters ###############
 getopts('ib:r:l:d:f:o:t:e:');
-### TK 17 aug 2009
-### $opt_e wordt kennelijk niet meer ondersteund...
-### our ($opt_b, $opt_e, $opt_r, $opt_l, $opt_d, $opt_f, $opt_o, $opt_t);
+
 our ($opt_b, $opt_r, $opt_l, $opt_d, $opt_f, $opt_o, $opt_t, $opt_e, $opt_i);
 
 # b : begin utterance marker
@@ -159,11 +153,9 @@ sub tokfile {
   my $sSepChars = " \t\n\240";
   # We treat brackets differently for Spanish
   $sSepChars .= "\\(\\)\\[\\]" if($lang eq 'esp');
-  #bb; note: use tokenize from 'matchXML.pl' jesse: en tabjes?
+  #bb; note: use tokenize from 'matchXML.pl' 
   @doc = splitLine($doc, $sSepChars);
 
-  ### TK 18 augustus 2009
-  ### Is het echt handig om 3 keer door hetzelfde array heen te gaan..?!?
 
   # adjust the tokenization according to more specific rules
   for (my $wordNr = 0; $wordNr < scalar @doc; $wordNr++) {
@@ -174,8 +166,7 @@ sub tokfile {
   }
 
   foreach my $wrd (@doc) {
-    ### TK 17 aug 2009
-    ### Volgorde aangepast. Nu:
+    ### Current order:
     ### canonicalForm<TAB>wordform<TAB>onset<offset
     print OUTFILE
       $wrd->[$ts{"word"}] . "\t" . # Canonical form
@@ -195,7 +186,6 @@ sub removeBrackets {
   ###
   return ($token,0,0) if( $token !~ /[\(\)]/ );
 
-  # warn "IN: $token";
   # replace unremovable brackets by some escape code
 
   $token =~ s/(\w.*?)\(/$1$PING/g; # ? <- Emacs syntax highlighting
@@ -217,8 +207,7 @@ sub removeBrackets {
       if (!$z) {
       } else {
 	my ($mpos, $mbrack) = split(/:/,$z);
-	#warn "$z($mbrack) $match";
-	#warn $mbrack;
+
 	if ($mbrack eq $PING) {
 	  # warn "Matching unsafe bracket at $p";
 	  $unsafe{$p}++;
@@ -229,9 +218,11 @@ sub removeBrackets {
       }
     }
   }
-  #warn "UNSAFE: " . join(", ", sort keys %unsafe) . "\n";
 
-  # Dit crasht perl: $token =~ s/[\(\)]/my $brack = $&; my $p = pos $token; warn $p; if ($unsafe{$p+1}) { $pingpang{$brack}; } else { $brack; }/eg;
+
+  # This causes perl to crash: 
+  # $token =~ s/[\(\)]/my $brack = $&; my $p = pos $token; warn $p; if ($unsafe{$p+1}) { $pingpang{$brack}; } else { $brack; }/eg;
+  
   my @chars = split(//,$token);
   for (my $i=0; $i < @chars; $i++) {
     if ($unsafe{$i+1}) {
@@ -239,21 +230,18 @@ sub removeBrackets {
     }
   }
   $token = join("",@chars);
-  # warn "GOED: dat hebben we ook weer overleefd: $token!";
+
   my $pre=0;
   my $post = 0;
   $token =~ s/^.*\(+/$pre = length($&); ""/e;
   $token =~ s/\)+.*/$post = length($&); ""/e;
   $token =~ s/$PING/(/g;
   $token =~ s/$PANG/)/g;
-  #warn "OUT: $token";
+  
   return ($token,$pre,$post);
 }
 
-### TK 18 aug 2009
-### toegevoegd. op een of andere manier kunnen er allerlei newlines in de
-### string staan. Aan het begin, maar ook middenin.
-### Ook als -b op \n staat...
+
 sub noNewlines {
   my ($sString) = @_;
   $sString =~ s/^\n/_/;
@@ -261,11 +249,10 @@ sub noNewlines {
 }
 
 sub initialize {
-  #print STDERR " Tokenizer: Initializing ...   ";
+  
   abbr();
   apostrof();
 
-  #print STDERR "Init done\n";
 }
 
 # Read in the known abbreviations
@@ -318,9 +305,6 @@ sub handle_punct_at_end {
 	 || ($doc[$wordNr][$ts{"word"}] =~ /^[^aeiouy]+\.$/i) )
     ) {
     # Remove punctuation from end of word
-    ## 20091106 MB en FL vinden dit stom :/
-    ## TK 23 sep 2010: Reguliere expressie aangepast, want de punt was niet
-    ## ge-escaped (?!?) en de '-' stond niet aan het eind...
     $doc[$wordNr][$ts{"word"}] =~ s/([,\.=\"-]+)$//;
     $doc[$wordNr][$ts{"offset"}] -= length $1 if ($1 && ($1 ne "") );
   }
@@ -380,8 +364,6 @@ sub splitAtChar {
   my $part = "";
   my $onset = 0;
   #my $inChr = 0; # mode: 0=not in white space, 1=in white space
-  # TK 4-dec-2009: Ja, ik heb de variabele naam daarom even verandert in
-  # $bInWhiteSpace, want dan vind ik het iets beter (nl. wel ;-) ) te volgen.
   my $bInWhiteSpace = 0;
   for (my $pos = 0; $pos < length $tmpStr; $pos++) {
     my $nextChr = substr($tmpStr, $pos, 1);
@@ -396,25 +378,18 @@ sub splitAtChar {
 	$part = $nextChr;
       }
     }
-    else {			# dit ging niet lekker
-      if ($bInWhiteSpace) {	# toegevoeg Jesse
+    else {
+      if ($bInWhiteSpace) {
 	$part="";
 	$onset=$pos;
       }
       $part .= substr ($str, $pos, 1);
       $bInWhiteSpace = 0;
     }
-
-    #	else {
-    #	    $part .= substr ($str, $pos, 1);
-    #	    $bInWhiteSpace = 0;
-    #	}
   }
 
-  #$DB::single = 1;
 
-  # TK 4-dec-2009: Dit toegoevoegd zodat het ook goed gaat als de file
-  # eindigt op bijvoorbeeld een newline
+  # added this, so it also works when a files ends with a newline
   push (@result, [$onset, $part]) if(! $bInWhiteSpace );
   return @result;
 }
@@ -431,8 +406,8 @@ sub handle_token {
   my ($onset, $token) = @{shift @_};
   my $tmpToken = $token;
   my $offset = $onset + (length $token);
-  # TK 17 jun 2010: added colon and semi colon
-  # TK 17 jun 2010: made patterns language specific (i.e. hyphens are treated
+  # added colon and semi colon
+  # made patterns language specific (i.e. hyphens are treated
   #                 differently for Spanish)
   my $sEndPat = ($lang eq 'esp')
     ? "((?:<[^<>]*>|[ \n»,¿¡\'\"\?\!;:-])+)" :
