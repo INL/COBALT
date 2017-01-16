@@ -815,7 +815,8 @@ function getPageRank($sWordformLookedFor,
 
   if( (! $sFilter) && ($sSortBy == 'frequency') )
     $sSortByClause = 'freq';
-  $sSelectQuery .= "ORDER BY $sSortByClause $sSortMode$sExtraSort " ;
+  $sSelectQuery .= "ORDER BY $sSortByClause $sSortMode$sExtraSort " .
+   	"LIMIT 18446744073709551615 " ; // needed because MariaDB won't sort otherwise
 	
 	$sSelectQuery .= ") AS tmp2 ) AS ranked_table ";
 	$sSelectQuery .= "WHERE ranked_table.wordform_lowercase LIKE '$sWordformLookedFor';";
@@ -5979,7 +5980,9 @@ function getPartiallyUnlemmatizedWordforms($sDatabase){
 		"  FROM type_frequencies tf, wordforms wf ".
 		"  WHERE tf.wordform_id = wf.wordform_id ".
 		"  GROUP BY tf.wordform_id ".
-		"  ORDER BY wf.wordform) tfw ".
+		"  ORDER BY wf.wordform ".
+		"  LIMIT 18446744073709551615 ". // needed because MariaDB won't sort otherwise
+		" ) tfw ".
 		" ON tfw.wordform_id = tav.wordform_id ".
 		"  AND tfw.frequency = tav.frequency ".
 		" WHERE tav.wordform_id IS NULL;";
