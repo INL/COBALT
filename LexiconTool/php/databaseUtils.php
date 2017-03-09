@@ -3144,11 +3144,11 @@ function insertDontShowRow($iWordFormId, $sColName, $iDontShowId, $iUserId) {
 // bare form will be taken (just modern_lemma, pos, language, gloss).
 function getLemmaSuggestionsQuery($sHeadword, $sModernWordForm, $sPatterns,
 				  $sPos, $sLanguage, $sGloss) {
-  return getSingleLemmaSuggestionsQuery($sHeadword, $sModernWordForm,
+  return "(" . getSingleLemmaSuggestionsQuery($sHeadword, $sModernWordForm,
 					$sPatterns, $sPos, $sLanguage, $sGloss).
-    " UNION " .
+    ") UNION (" .
     getMultipleLemmaSuggestionsQuery($sHeadword, $sModernWordForm,
-    				     $sPatterns, $sPos, $sLanguage, $sGloss);
+    				     $sPatterns, $sPos, $sLanguage, $sGloss) . ")";
 }
 
 // This one is the same as the one below, but it checks the lemmata featured
