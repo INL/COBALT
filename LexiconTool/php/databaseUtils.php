@@ -697,6 +697,25 @@ function insertTypeFrequencies($sValues) {
 }
 
 
+// Get the collation to apply when sorting, if set. 
+// Otherwise we will apply default sorting.
+function getCollation($sDatabase){
+    
+    $aCollation = $GLOBALS['asCollation'];
+ 
+    if ( isset($aCollation) )
+		{
+		if ( isset($aCollation[ $sDatabase ]) )
+			{			
+			return "COLLATE ".$aCollation[ $sDatabase ];
+			}
+		}		
+	
+	return "COLLATE utf8_general_ci";
+    
+}
+
+
 // Get the page number to start at, given a wordform one wants to start at
 // The core of the query is based on the query in getWordFormIdsToAttest(), so as to be sure we'll be computing
 // the page number within the true wordform list, and not some slightly differently ordered list etc.
@@ -710,10 +729,11 @@ function getPageRank($sWordformLookedFor,
 				
 	chooseDb($_REQUEST['sDatabase']);
 				
-	$sExtraSort = ($sSortBy == 'frequency') ? ", wordForm_lowercase $sSortMode" : '';
+    $sCollation = getCollation($_REQUEST['sDatabase']);
+	$sExtraSort = ($sSortBy == 'frequency') ? ", wordForm_lowercase $sCollation $sSortMode" : '';
 	$sSortByClause = '';
 	if( $sSortBy == 'wordForm')
-		$sSortByClause = ( $bSortReverse) ? "REVERSE(wordForm_lowercase)" : "wordForm_lowercase";
+		$sSortByClause = ( $bSortReverse) ? "REVERSE(wordForm_lowercase) $sCollation" : "wordForm_lowercase $sCollation";
 	else // We sort by frequency
 		$sSortByClause = "SUM(frequency)";
 		
@@ -849,6 +869,7 @@ function getWordsToAttest($iId, $sMode, $sSortBy, $sSortMode, $bSortReverse,
 	   "$bDoShowCorpus, $bDoShowDocument, $iStartAt, $iStepValue, " .
 	   "$iNrOfWordFormsPerPage)\n");
 
+  $sCollation = getCollation($_REQUEST['sDatabase']);
   $sLemmaFilterWordformIds = false;
   $iLemmaFilter_lemmaId = '';
   if( strlen($sLemmaFilter) ) {
@@ -863,12 +884,12 @@ function getWordsToAttest($iId, $sMode, $sSortBy, $sSortMode, $bSortReverse,
   $sSortByClause = '';
   if( $sSortBy == 'wordForm')
     $sSortByClause = ( $bSortReverse)
-      ? "REVERSE(wordForm_lowercase)" : "wordForm_lowercase";
+      ? "REVERSE(wordForm_lowercase) $sCollation" : "wordForm_lowercase $sCollation";
   else // We sort by frequency
     $sSortByClause = "SUM(frequency)";
 
   $sExtraSort = ($sSortBy == 'frequency')
-    ? ", wordForm_lowercase $sSortMode" : '';
+    ? ", wordForm_lowercase $sCollation $sSortMode" : '';
 
   $sWordformIds =
     getWordFormIdsToAttest($iId, $sMode, $sSortBy, $sSortMode, $sSortByClause,
@@ -3145,11 +3166,17 @@ function insertDontShowRow($iWordFormId, $sColName, $iDontShowId, $iUserId) {
 // bare form will be taken (just modern_lemma, pos, language, gloss).
 function getLemmaSuggestionsQuery($sHeadword, $sModernWordForm, $sPatterns,
 				  $sPos, $sLanguage, $sGloss) {
-  return "(" . getSingleLemmaSuggestionsQuery($sHeadword, $sModernWordForm,
+                      
+  $sCollation = getCollation($_REQUEST['sDatabase']);
+                      
+  return "SELECT modern_lemma, normalized_wordform, patterns, lemma_part_of_speech, language, gloss".
+    " FROM (".
+    getSingleLemmaSuggestionsQuery($sHeadword, $sModernWordForm,
 					$sPatterns, $sPos, $sLanguage, $sGloss).
-    ") UNION (" .
+    " UNION " .
     getMultipleLemmaSuggestionsQuery($sHeadword, $sModernWordForm,
-    				     $sPatterns, $sPos, $sLanguage, $sGloss) . ")";
+    				     $sPatterns, $sPos, $sLanguage, $sGloss). ") x ".
+    " ORDER BY modern_lemma $sCollation LIMIT 20;";
 }
 
 // This one is the same as the one below, but it checks the lemmata featured

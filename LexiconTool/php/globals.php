@@ -70,6 +70,13 @@ $asCustomCss['lexicon_db1'] = 'lexiconTool_alitheia.css';
 $asCustomCss['lexicon_db2'] = 'lexiconTool_latijn.css';
 
 
+// Custom collation for correct wordform sorting
+//  eg. $asCollation['german_project'] = 'utf8_swedish_ci'
+//  (get the list of available collations with: SHOW COLLATION LIKE 'utf8%' )
+
+$asCollation['lexicon_db1'] = 'utf8_roman_ci';
+
+
 // Document root to save uploaded files to
 // NOTE: NO SLASH at the end
 $sDocumentRoot = "/uploaddocs";
