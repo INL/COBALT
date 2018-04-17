@@ -315,8 +315,9 @@ function fillWordsToAttest_(iNewStartAt, iStepValue, bRecurse, iOldSelectedRow,
 		    sCurrentPage +
 		    "&sSortSentencesBy=' + sSortSentencesBy + " +
 		    "'&sSortSentencesMode=' + sSortSentencesMode + " +
-		    "'&iNrOfSentencesPerWordform=' + " +
-		    "iNrOfSentencesPerWordform + '&iStartAt=" + iNr +
+		    "'&iNrOfSentencesPerWordform=' + iNrOfSentencesPerWordform + " +
+            "'&iAmountOfContext=' + iAmountOfContext + " +
+		    "'&iStartAt=" + iNr +
 		    "';\">" + (iNr+1) + "</span>&nbsp;";
 		  iMax = iNr;
 		}
