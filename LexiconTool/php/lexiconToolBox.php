@@ -1346,6 +1346,8 @@ function fillSentencesForDoc($sDatabase, $iDocumentId, $sDocumentTitle,
   $iWordFormLength = strlen($sWordForm);
   
   $bFullDatabaseMode = fullDatabaseMode($sDatabase);
+  
+  $iDocumentSize = 0;
 
   // if in full database mode, get the document content from the database
   // otherwise get it from the physical file
